@@ -3,13 +3,15 @@ import { window } from 'vscode';
 
 import { checkIfMicroPyTermExists, sendTextToTerm, ensureTerminalExists,
 	     selectTerminal, selectMicroPythonTerm } from './pyTerminal';
-
 import { selectPort, selectBaud } from './serialPort';
 import { delay } from './util';
+import { REPL } from './repl';
 
 const SerialPort = require('serialport');
 
 export function activate(context: vscode.ExtensionContext) {
+
+	let repl: REPL;
 
 	console.log('Congratulations, your extension "micro-python-terminal" is now active!');
 
@@ -23,12 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 			if (terminal !== undefined) {
 				selectPort(SerialPort).then((port) => {
 					selectBaud().then(async (baud) => {
-						terminal.sendText(`rshell -p ${port} -b ${baud}`, true);
-						await delay(500);
-						terminal.sendText(`connect serial`);
-						await delay(1100);
-						terminal.sendText('repl');
-						terminal.show();
+						repl = new REPL(terminal, port, baud);
 					}).catch((err) => {
 						console.log(err);
 					});

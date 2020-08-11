@@ -28,7 +28,7 @@ function readAvailablePorts(serialPort: typeof SerialPort)  {
 	});
 }
 
-export async function selectPort(serialPort: typeof SerialPort) {
+export async function selectPort(serialPort: typeof SerialPort): Promise<String> {
 	return new Promise((resolve, reject) => {
 		readAvailablePorts(serialPort).then((paths) => {
 			resolve(showQuickPick(paths, 'No USB devices found.'));
