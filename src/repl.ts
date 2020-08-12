@@ -1,5 +1,10 @@
 import * as vscode from 'vscode';
 import { delay } from './util';
+
+const RSHELL_QUIT    = '\u0018';
+const RSHELL_RESET   = '\u0004';
+const RSHELL_END     = '\u0003';
+
 export class REPL {
 
     terminal: vscode.Terminal;
@@ -12,12 +17,6 @@ export class REPL {
         this.portPath = portPath;
         this.baudRate = baudRate;
         this.connected = false;
-
-        this.connect().then(() => {
-            this.connected = true;
-        }).catch((err) => {
-            this.connected = false;
-        });
     }
 
     connect() {
@@ -28,9 +27,24 @@ export class REPL {
             await delay(1100);
             this.terminal.sendText('repl');
             this.terminal.show();
+            this.connected = true;
             resolve();
+        }).catch((err) => {
+            this.connected = false;
         });
+    }
 
+    async reset() {
+        await delay(500);
+        this.terminal.sendText(RSHELL_RESET);
+    }
+
+    async quit() {
+        await delay(500);
+        this.terminal.sendText(RSHELL_QUIT);
+        await delay(100);
+        this.terminal.sendText(RSHELL_END)
+        await delay(100);
     }
     
 }
