@@ -20,6 +20,10 @@
         "title": "Hello World"
       },
       {
+        "command": "micro-python-terminal.sendTextTermCommand",
+        "title": "Send to MicroPython"
+      },
+      {
         "command": "micro-python-terminal.createTerm",
         "title": "Create MicroPython Terminal"
       }
