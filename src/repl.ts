@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import { delay } from './util';
 import { REPLParser } from './replParser';
+import { SerialDevice } from './SerialDevice';
+import { rejects } from 'assert';
 
 
 const RSHELL_QUIT    = '\u0018';
@@ -10,34 +12,46 @@ const RSHELL_END     = '\u0003';
 export class REPL {
 
     terminal: vscode.Terminal;
-    portPath: String;
-    baudRate: String;
-    connected: Boolean;
+    rShellConnected: Boolean;
+    replConnected: Boolean;
     currentIndentLevel: number;
     replParser: REPLParser;
+    serialDevice: SerialDevice;
 
-    constructor(terminal: vscode.Terminal, portPath: String, baudRate: String) {
+    constructor(terminal: vscode.Terminal, serialDevice: SerialDevice) {
         this.terminal = terminal;
-        this.portPath = portPath;
-        this.baudRate = baudRate;
-        this.connected = false;
+        this.rShellConnected = false;
+        this.replConnected = false;
         this.currentIndentLevel = 0;
+        this.serialDevice = serialDevice;
         this.replParser = new REPLParser();
     }
 
-    connect() {
-        return new Promise(async (resolve, reject) => {
-            this.terminal.sendText(`rshell -p ${this.portPath} -b ${this.baudRate}`, true);
-            await delay(500);
-            this.terminal.sendText(`connect serial`);
-            await delay(1100);
-            this.terminal.sendText('repl');
-            this.terminal.show();
-            this.connected = true;
-            resolve();
-        }).catch((err) => {
-            this.connected = false;
+    isConnected() {
+        return (this.rShellConnected && this.replConnected);
+    }
+
+    connect(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            await this.connectRShell();
+            this.connectREPL();
+            resolve(true);
         });
+    }
+
+    private connectRShell() {
+        return new Promise(async (resolve) => {
+            this.terminal.sendText(`rshell -p ${this.serialDevice.port} -b ${this.serialDevice.baud}`);
+            await delay(1100);
+            this.rShellConnected = true;
+            resolve();
+        });
+    }
+
+    private connectREPL() {
+        this.terminal.sendText('repl');
+        this.terminal.show();
+        this.replConnected = true;
     }
 
     async reset() {
@@ -46,11 +60,14 @@ export class REPL {
     }
 
     async quit() {
-        await delay(500);
-        this.terminal.sendText(RSHELL_QUIT);
-        await delay(100);
-        this.terminal.sendText(RSHELL_END);
-        await delay(100);
+        return new Promise(async (resolve) => {
+            await delay(500);
+            this.terminal.sendText(RSHELL_QUIT);
+            await delay(100);
+            this.terminal.sendText(RSHELL_END);
+            await delay(100);
+            resolve();
+        });
     }
 
     async sendText(terminal: vscode.Terminal, chunk: string) {
@@ -64,10 +81,6 @@ export class REPL {
             }
             resolve();
         });
-
-
     }
-
-
     
 }

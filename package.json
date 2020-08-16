@@ -29,7 +29,7 @@
       },
       {
         "command": "micro-python-terminal.selectDevice",
-        "title": "Select MicroPython device"
+        "title": "Select MicroPython USB device"
       }
     ]
   },

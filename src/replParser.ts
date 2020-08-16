@@ -28,7 +28,7 @@ export class REPLParser {
             if (lineStartsAnIndent) {
                 currentIndentLevel++;
                 console.log('Increased indent.');
-            } 
+            }
 
             preparedLines.push(line);
         }

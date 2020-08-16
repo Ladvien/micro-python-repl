@@ -20,7 +20,7 @@ export function selectMicroPythonTerm(terminals: readonly vscode.Terminal[]): Pr
         if (undefined === terminals.find(term => term.name === 'MicroPython')) {
             const terminal = vscode.window.createTerminal({
                 name: `MicroPython`,
-                hideFromUser: false
+                hideFromUser: true
             } as any);
             await delay(1000);
             resolve(terminal);
