@@ -12,11 +12,13 @@ import { delay } from './util';
 
 // DONE: Wait terminal to warm up before opening REPL.
 // DONE: Determine why "\n\n" causes REPL problems.
+// DONE: Move useDeviceToConnectToRepl to REPL class.
 
-// TODO: Move useDeviceToConnectToRepl to REPL class.
 // TODO: Track indenting +/-.
 // TODO: Don't allow use of terminal until VSCode fully initializes.
-
+// TODO: Find regex to remove comments before sending, Test case:
+	// def map_val(x, in_min, in_max, out_min, out_max): # This comment breaks the indent
+	//    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min # 1
 
 const SEND_THROTTLE = 100;
 
@@ -91,6 +93,7 @@ function selectDevice(context: vscode.ExtensionContext) {
 			resolve();
 		}).catch((err) => {
 			statusBarMsg.dispose();
+			vscode.window.showErrorMessage('Failed to set port or baud.');
 			reject(err);
 		});
 	});
@@ -105,7 +108,7 @@ function connectTerminalToREPL(): Promise<boolean> {
 				repl = new REPL(terminal, serialDevice);
 			}
 			if (terminal !== undefined) {
-				repl.connect().then((result) => {
+				repl.connect().then(() => {
 					statusBarMsg.dispose();
 					resolve(true);
 				}).catch((err) => {

@@ -73,10 +73,10 @@ export class REPL {
     async sendText(terminal: vscode.Terminal, chunk: string) {
 
         return new Promise(async (resolve) => {
-            let preparedLines = this.replParser.prepareChunkToSend(chunk, this.currentIndentLevel);
+            let preparedLines = this.replParser.prepareChunkToSend(chunk);
             for (let i = 0; i < preparedLines.length; i++) {
                 const line = preparedLines[i];
-                terminal.sendText(<string>line, true);
+                terminal.sendText(<string>line);
                 await delay(100);
             }
             resolve();

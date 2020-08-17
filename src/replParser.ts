@@ -1,64 +1,62 @@
 import * as vscode from 'vscode';
 import { delay } from './util';
 
-const DECREASE_INDENT       = '\u0008';
-const SPACES_PER_INDENT     = 4;
+
 
 export class REPLParser {
+    BACKSPACE: string;
+    SPACES_PER_INDENT: number;
+    REDUCE_INDENT: string;
+    EXEC: string;
 
-    constructor() {}
+    constructor() {
+        this.BACKSPACE             = '\u0008';
+        this.SPACES_PER_INDENT     = 4;
+        this.REDUCE_INDENT         = this.BACKSPACE; 
+        this.EXEC                  = '\n';
+    }
 
-    prepareChunkToSend(textChunk: String, currentIndentLevel: number): Array<String> {
+    prepareChunkToSend(textChunk: String): Array<String> {
         
         let preparedLines = new Array<String>();
         let lines = textChunk.split('\n'); 
-        var neededBreaksOnNextLine = '';
+        let neededBreaks = '';
 
         for (let i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            line = line.concat(neededBreaksOnNextLine);
-
-            const spacesAtStart = this.getNumberOfSpacesAtStart(line);
-            neededBreaksOnNextLine = this.getNeededBreaksAfter(line, currentIndentLevel,);
-            const lineStartsAnIndent = this.doesLineStartAnIndent(line);
-
-            line = this.removeLeadingSpaces(line, spacesAtStart);
-
-            // Increase indent if needed.
-            if (lineStartsAnIndent) {
-                currentIndentLevel++;
-                console.log('Increased indent.');
-            }
-
+            let line = lines[i];
+            neededBreaks = this.getNeededBreaksAfter(lines, i);
+            line = line.concat(neededBreaks);
+            line = this.removeLeadingSpaces(line);
             preparedLines.push(line);
         }
         return preparedLines;
     }
 
-    removeLeadingSpaces(line: string, spacesAtStart: number): string {
-        return line.substring(spacesAtStart);
+    removeLeadingSpaces(line: string): string {
+        return line.substring(this.getNumberOfSpacesAtStart(line));
     }
 
-    getNeededBreaksAfter(line: string, currentIndentLevel: number): string {
-        var neededBreaks = "";
+    getNeededBreaksAfter(lines: string[], currentPos: number): string {
+        let neededBreaks = "";
+
+        const currentIndentLevel = this.countLineIndents(lines[currentPos]);
+        if(currentPos + 1 === lines.length) { return this.EXEC; }
+
+        const nextLineIndents = this.countLineIndents(lines[currentPos + 1]);
+        const numberIndentsToReduce = currentIndentLevel - nextLineIndents;
+
         // If indented, check for unindent.
-        if (currentIndentLevel > 0) {
-            console.log('Added indent');
+        if (currentIndentLevel > 0 &&  numberIndentsToReduce > 0) {
             for (let i = 0; i < currentIndentLevel; i++) {
-                neededBreaks += "_break_";        
+                neededBreaks += this.REDUCE_INDENT;
             }
-            currentIndentLevel = 0;
         }
-        console.log(neededBreaks);
+        neededBreaks += this.EXEC;
         return neededBreaks;
     }
 
-    doesLineStartAnIndent(line: string): boolean {
-        return line.endsWith(':');
-    }
-
     getNumberOfSpacesAtStart(line: string): number {
-        var numberOfSpaces = 0;
+        let numberOfSpaces = 0;
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
             if (char === ' ') { numberOfSpaces++; } else { break; }
@@ -67,8 +65,8 @@ export class REPLParser {
     }
 
     countLineIndents(line: string): number {
-        var numberOfSpaces = this.getNumberOfSpacesAtStart(line);
-        const numberOfIndents = Math.round(numberOfSpaces / SPACES_PER_INDENT);
+        const numberOfSpaces = this.getNumberOfSpacesAtStart(line);
+        const numberOfIndents = Math.floor(numberOfSpaces / this.SPACES_PER_INDENT);
         return numberOfIndents;
     }
 
