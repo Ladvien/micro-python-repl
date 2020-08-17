@@ -37,17 +37,20 @@ export class REPLParser {
     }
 
     getNeededBreaksAfter(lines: string[], currentPos: number): string {
-        let neededBreaks = "";
+        let neededBreaks = '';
+        let nextLineIndents = 0;
 
         const currentIndentLevel = this.countLineIndents(lines[currentPos]);
-        if(currentPos + 1 === lines.length) { return this.EXEC; }
-
-        const nextLineIndents = this.countLineIndents(lines[currentPos + 1]);
+        if(currentPos + 1 !== lines.length) { 
+            nextLineIndents = this.countLineIndents(lines[currentPos + 1]);
+        }
+        
         const numberIndentsToReduce = currentIndentLevel - nextLineIndents;
-
+  
         // If indented, check for unindent.
         if (currentIndentLevel > 0 &&  numberIndentsToReduce > 0) {
-            for (let i = 0; i < currentIndentLevel; i++) {
+            neededBreaks += this.EXEC;
+            for (let i = 0; i < numberIndentsToReduce; i++) {
                 neededBreaks += this.REDUCE_INDENT;
             }
         }
