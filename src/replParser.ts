@@ -22,6 +22,8 @@ export class REPLParser {
         let lines = textChunk.split('\n'); 
         let neededBreaks = '';
 
+        lines = this.removeEmptyLines(lines);
+
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
             neededBreaks = this.getNeededBreaksAfter(lines, i);
@@ -30,6 +32,16 @@ export class REPLParser {
             preparedLines.push(line);
         }
         return preparedLines;
+    }
+
+    removeEmptyLines(lines: string[]): string[] {
+        let cleanLines: string[] = [];
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if(line.trim() === ''){ continue; }
+            cleanLines.push(line);
+        }
+        return cleanLines;
     }
 
     removeLeadingSpaces(line: string): string {

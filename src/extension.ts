@@ -10,6 +10,8 @@ import { SerialDevice } from './SerialDevice';
 import { PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialConnection";
 import { delay } from './util';
 
+import { MicroPythonTerminal } from './pseudoTerminal'; 
+
 // DONE: Wait terminal to warm up before opening REPL.
 // DONE: Determine why "\n\n" causes REPL problems.
 // DONE: Move useDeviceToConnectToRepl to REPL class.
@@ -20,14 +22,24 @@ import { delay } from './util';
 	// def map_val(x, in_min, in_max, out_min, out_max): # This comment breaks the indent
 	//    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min # 1
 
+	const cats = {
+		'Coding Cat': 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
+		'Compiling Cat': 'https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif'
+	  };
+
 const SEND_THROTTLE = 100;
 
 let repl: REPL;
 let serialDevice: SerialDevice;
 let serialConnection: SerialConnection;
-
+let terminalData = {};
+// https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
 
+
+	let microTerm = new MicroPythonTerminal();
+
+	terminalData = {};
 	serialDevice = new SerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <string>context.workspaceState.get(BAUD_RATE_KEY));
 	serialConnection = new SerialConnection(serialDevice);
 
@@ -103,10 +115,12 @@ function connectTerminalToREPL(): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
+
 			// Ensure REPL object exists.
 			if (repl === undefined) {
 				repl = new REPL(terminal, serialDevice);
 			}
+
 			if (terminal !== undefined) {
 				repl.connect().then(() => {
 					statusBarMsg.dispose();
@@ -141,3 +155,17 @@ export function deactivate() {
 		}
 	}
 }
+
+// function getWebviewContent(cat: keyof typeof cats) {
+// 	return `<!DOCTYPE html>
+//   <html lang="en">
+//   <head>
+// 	  <meta charset="UTF-8">
+// 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+// 	  <title>Cat Coding</title>
+//   </head>
+//   <body>
+// 	  <img src="${cats[cat]}" width="300" />
+//   </body>
+//   </html>`;
+//   }

@@ -9,6 +9,9 @@ const RSHELL_QUIT    = '\u0018';
 const RSHELL_RESET   = '\u0004';
 const RSHELL_END     = '\u0003';
 
+const DELAY_BETWEEN_EXEC = 60;
+
+
 export class REPL {
 
     terminal: vscode.Terminal;
@@ -77,7 +80,7 @@ export class REPL {
             for (let i = 0; i < preparedLines.length; i++) {
                 const line = preparedLines[i];
                 terminal.sendText(<string>line);
-                await delay(100);
+                await delay(DELAY_BETWEEN_EXEC);
             }
             resolve();
         });
