@@ -3,14 +3,12 @@ import { window } from 'vscode';
 import { Range } from 'vscode';
 import { ensureTerminalExists, selectMicroPythonTerm } from './pyTerminal';
 
-import { REPL } from './repl';
-// import { connectToRepl } from './serialConnection';
-import { SerialConnection } from "./serialConnection";
-import { SerialDevice } from './SerialDevice';
-import { PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialConnection";
+import SerialPort = require('serialport');
+import { ISerialDevice } from './SerialDevice';
+import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay } from './util';
 
-import { MicroPythonTerminal } from './pseudoTerminal'; 
+import { MicroPythonTerminal } from './microPythonTerminal'; 
 
 // DONE: Wait terminal to warm up before opening REPL.
 // DONE: Determine why "\n\n" causes REPL problems.
@@ -22,30 +20,16 @@ import { MicroPythonTerminal } from './pseudoTerminal';
 	// def map_val(x, in_min, in_max, out_min, out_max): # This comment breaks the indent
 	//    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min # 1
 
-	const cats = {
-		'Coding Cat': 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
-		'Compiling Cat': 'https://media.giphy.com/media/mlvseq9yvZhba/giphy.gif'
-	  };
-
 const SEND_THROTTLE = 100;
 
-let repl: REPL;
-let serialDevice: SerialDevice;
-let serialConnection: SerialConnection;
-let terminalData = {};
+let serialDevice: ISerialDevice;
+let microPyTerm: MicroPythonTerminal;
+
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
+	serialDevice = new ISerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <number>context.workspaceState.get(BAUD_RATE_KEY));
 
-
-	let microTerm = new MicroPythonTerminal();
-
-	terminalData = {};
-	serialDevice = new SerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <string>context.workspaceState.get(BAUD_RATE_KEY));
-	serialConnection = new SerialConnection(serialDevice);
-
-	console.log('Congratulations, your extension "micro-python-terminal" is now active!');
-	
-	let microPyTerm = vscode.commands.registerCommand('micro-python-terminal.createTerm', () => {
+	let microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', () => {
 		connectTerminalToREPL().then((result) => {
 			console.log(result);
 		}).catch((err) => {
@@ -54,10 +38,6 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
-		if (repl === undefined || !repl.isConnected()){
-			vscode.window.showErrorMessage('MicroPython or RShell not available.  Please run "Select device and create MicroPython Terminal" first.');
-			return;
-		}
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (undefined !== terminal){
 				if (undefined !== window.activeTextEditor?.document) {
@@ -66,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
 					const textRange = new Range(start, end);
 	
 					let chunk = doc.getText(textRange);
-					await repl.sendText(terminal, chunk);
+					await microPyTerm.sendInput(chunk);
 				}
 			} else {
 				window.showErrorMessage('No open document.');
@@ -86,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 	const subscriptions = [
-		microPyTerm,
+		microPyTermCommand,
 		sendTextTermCommand,
 		selectDeviceCommand
 	];
@@ -97,6 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
 function selectDevice(context: vscode.ExtensionContext) {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage('Selecting USB-to-Serial device...$(sync~spin)');
+		const serialConnection = new SerialDeviceSelector();
 		serialConnection.selectDevice().then((newSerialDevice) => {
 			serialDevice = newSerialDevice;
 			context.workspaceState.update(PORT_PATH_KEY, serialDevice.port);
@@ -117,19 +98,12 @@ function connectTerminalToREPL(): Promise<boolean> {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 
 			// Ensure REPL object exists.
-			if (repl === undefined) {
-				repl = new REPL(terminal, serialDevice);
+			if (microPyTerm === undefined) {
+				microPyTerm = new MicroPythonTerminal(serialDevice);
 			}
 
 			if (terminal !== undefined) {
-				repl.connect().then(() => {
-					statusBarMsg.dispose();
-					resolve(true);
-				}).catch((err) => {
-					vscode.window.showErrorMessage(err);
-					statusBarMsg.dispose();
-					reject(false);
-				});
+				resolve();
 			}
 		}).catch((err) => {
 			statusBarMsg.dispose();
@@ -140,11 +114,14 @@ function connectTerminalToREPL(): Promise<boolean> {
 }
 
 export function deactivate() {
+
+	microPyTerm.close();
+
 	if (ensureTerminalExists()) {
 		for (let i = 0; i < vscode.window.terminals.length; i++) {
 			const terminal = vscode.window.terminals[i];
 			if (terminal.name === "MicroPython") {
-				repl.quit().then(() => {
+				microPyTerm.shutdown().then(() => {
 					terminal.dispose();
 				}).catch(async (err) => {
 					vscode.window.showErrorMessage('Failed to shutdown MicroPython REPL.');
@@ -155,17 +132,3 @@ export function deactivate() {
 		}
 	}
 }
-
-// function getWebviewContent(cat: keyof typeof cats) {
-// 	return `<!DOCTYPE html>
-//   <html lang="en">
-//   <head>
-// 	  <meta charset="UTF-8">
-// 	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-// 	  <title>Cat Coding</title>
-//   </head>
-//   <body>
-// 	  <img src="${cats[cat]}" width="300" />
-//   </body>
-//   </html>`;
-//   }

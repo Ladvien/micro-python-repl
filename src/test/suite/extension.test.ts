@@ -8,9 +8,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as ext from '../../extension';
 import * as pyTerminal from '../../pyTerminal';
-import { REPL } from '../../repl';
 import { REPLParser } from '../../replParser';
-import { SerialDevice } from '../../SerialDevice';
 
 const test_port = '/dev/ttyUSB0';
 const test_baud = '115200';
@@ -154,7 +152,7 @@ suite('Extension Test Suite', () => {
 				{args: { lines: lines, currentPos:  3}, expected: `print('goodbye')\n`},
 			];
 
-			let chunks = replParser.prepareChunkToSend(lines);
+			let chunks = replParser.prepareInputChunk(lines);
 
 			it('correctly excludes empty lines from chunks array', function(){
 				assert.equal(chunks.length, 4);

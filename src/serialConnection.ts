@@ -1,75 +1,65 @@
 import * as vscode from 'vscode';
-import { showQuickPick } from './userInput';
-import { REPL } from './repl';
-import { SerialDevice } from './SerialDevice';
+import { ISerialDevice } from './SerialDevice';
+import SerialPort = require('serialport');
+const EventEmitter = require('events');
 
-const SerialPort = require('serialport');
-
-
-export const PORT_PATH_KEY = "port";
-export const BAUD_RATE_KEY = "baud";
-
-const baudRates = [
-    1200, 
-    2400, 
-    4800,
-    9600, 
-    19200, 
-    38400, 
-    57600,
-    115200
-];
+const encoding = 'utf8'; // https://www.w3resource.com/node.js/nodejs-buffer.php
 
 export class SerialConnection {
 
-	serialDevice: SerialDevice;
+	port: SerialPort;
+	serialDevice: ISerialDevice;
+	eventEmitter: typeof EventEmitter;
+	lineBuffer: String;
 
-	constructor(serialDevice: SerialDevice) {
-		this.serialDevice = serialDevice;	
+	constructor(serialDevice: ISerialDevice, eventEmitter: typeof EventEmitter) {
+		this.lineBuffer = '';
+
+		this.eventEmitter = eventEmitter;
+		this.serialDevice = serialDevice;
+		try {
+			this.port = new SerialPort(this.serialDevice.port, {baudRate: this.serialDevice.baud, autoOpen: false}).setEncoding(encoding);
+		} catch (error) {
+			this.port = new SerialPort(this.serialDevice.port);
+		}
 	}
 
-	readAvailablePorts(serialPort: typeof SerialPort)  {
-		return new Promise<string[]>((resolve, reject) => {
-			var paths = new Array<string>();
-			SerialPort.list().then((ports: [any]) => {
-				ports.forEach(port => {
-					paths.push(port.path);
-				});
-				resolve(paths);
-			}).catch((err: any) => {
-				reject(['No devices found.']);
-			});;
-		});
+	onRead(data: Buffer) {
+		this.eventEmitter.emit('onRead', data.toString());
 	}
 	
-	async selectPort(serialPort: typeof SerialPort): Promise<String> {
-		return new Promise((resolve, reject) => {
-			this.readAvailablePorts(serialPort).then((paths) => {
-				resolve(showQuickPick(paths, 'No USB devices found.'));
-			}).catch((err) => {
-				reject(['Error finding device.']);
-			});
-		});
+	onOpen(){
+		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
 	}
 	
-	async selectBaud(): Promise<String>{
-		return new Promise((resolve) => {
-			resolve(showQuickPick(baudRates, 'Unable to find baud rates.'));
+	open(): boolean {
+		this.port.open(function (err: any) {
+			if (err) {
+				return console.log('Error opening port: ', err.message);
+			}
+			
+		});
+		this.port.on('open', () => this.onOpen());
+		this.port.on('data', (data) => this.onRead(data));
+		this.port.on('error', function(err) {
+			console.log('Error: ', err.message);
+  		});
+		return false;
+	}
+
+	write(line: string) {
+		console.log('writing');
+		this.port.write(line, function(err) {
+			if (err) {
+			  console.log('Error on write: ', err.message);
+			}
+			console.log('message written');
 		});
 	}
-	
-	async selectDevice(): Promise<SerialDevice> {
-	
-		return new Promise((resolve, reject) => {
-			this.selectPort(SerialPort).then((port) => {
-				this.selectBaud().then(async (baud) => {
-					resolve(new SerialDevice(port, baud));
-				}).catch(() => {
-					reject("Failed to select baud.");
-				});
-			}).catch(() => {
-				reject("Failed to select port path.");
-			});
-		});
+
+	close() {
+		this.port.close();
 	}
+	
+
 }

@@ -1,6 +1,15 @@
 import * as vscode from 'vscode';
 import { delay } from './util';
+import * as termCon from './terminalConstants';
 
+export class IParseResults {
+    line: String;
+    columnIndex: Number;
+    constructor(line: String, columnIndex: Number) {
+        this.line = line;
+        this.columnIndex = columnIndex;
+    }
+}
 
 
 export class REPLParser {
@@ -16,7 +25,7 @@ export class REPLParser {
         this.EXEC                  = '\n';
     }
 
-    prepareChunkToSend(textChunk: String): Array<String> {
+    prepareInputChunk(textChunk: String): Array<String> {
         
         let preparedLines = new Array<String>();
         let lines = textChunk.split('\n'); 
@@ -83,6 +92,40 @@ export class REPLParser {
         const numberOfSpaces = this.getNumberOfSpacesAtStart(line);
         const numberOfIndents = Math.floor(numberOfSpaces / this.SPACES_PER_INDENT);
         return numberOfIndents;
+    }
+
+    parseInput(data: string, columnIndex: number): IParseResults {
+        switch (data) {
+            case `\u007f`:
+                // If user backspaces, backup, replace with space, 
+                // backup again.
+                if (columnIndex > 4){
+                    data = termCon.BACKSPACE_CLEAR;
+                    columnIndex--;
+                }
+                break;
+            case '\r': 
+                data = '\r\n';
+                columnIndex = 4;
+                break;
+            case termCon.UP:
+                data = '';
+                break;
+            case termCon.DOWN:
+                data = '';
+                break;
+            case termCon.RIGHT:
+                data = '';
+                break;
+            case termCon.LEFT:
+                data = '';
+                break;
+            default:
+                data = data.replace('^([\w,:\s/-]*)$', data);
+                columnIndex++;
+                break;
+        }
+        return new IParseResults(data, columnIndex);
     }
 
 
