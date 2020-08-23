@@ -1,8 +1,6 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { Range } from 'vscode';
-import { ensureTerminalExists, selectMicroPythonTerm } from './pyTerminal';
-
 import SerialPort = require('serialport');
 import { ISerialDevice } from './SerialDevice';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
@@ -38,7 +36,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	let sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
-		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
+		microPyTerm.selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (undefined !== terminal){
 				if (undefined !== window.activeTextEditor?.document) {
 					const doc = window.activeTextEditor?.document;
@@ -46,7 +44,7 @@ export function activate(context: vscode.ExtensionContext) {
 					const textRange = new Range(start, end);
 	
 					let chunk = doc.getText(textRange);
-					await microPyTerm.sendInput(chunk);
+					await microPyTerm.sendSelectedText(chunk);
 				}
 			} else {
 				window.showErrorMessage('No open document.');
@@ -95,13 +93,11 @@ function selectDevice(context: vscode.ExtensionContext) {
 function connectTerminalToREPL(): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
-		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
-
-			// Ensure REPL object exists.
-			if (microPyTerm === undefined) {
-				microPyTerm = new MicroPythonTerminal(serialDevice);
-			}
-
+		// Ensure REPL object exists.
+		if (microPyTerm === undefined) {
+			microPyTerm = new MicroPythonTerminal(serialDevice);
+		}
+		microPyTerm.selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (terminal !== undefined) {
 				resolve();
 			}
@@ -114,14 +110,13 @@ function connectTerminalToREPL(): Promise<boolean> {
 }
 
 export function deactivate() {
-
-	microPyTerm.close();
-
-	if (ensureTerminalExists()) {
+	if (microPyTerm.ensureTerminalExists()) {
 		for (let i = 0; i < vscode.window.terminals.length; i++) {
 			const terminal = vscode.window.terminals[i];
 			if (terminal.name === "MicroPython") {
-				microPyTerm.shutdown().then(() => {
+				microPyTerm.shutdown().then(async (result) => {
+					console.log('here');
+					delay(5000);
 					terminal.dispose();
 				}).catch(async (err) => {
 					vscode.window.showErrorMessage('Failed to shutdown MicroPython REPL.');

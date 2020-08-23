@@ -7,7 +7,6 @@ import { describe, before, it } from 'mocha';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as ext from '../../extension';
-import * as pyTerminal from '../../pyTerminal';
 import { REPLParser } from '../../replParser';
 
 const test_port = '/dev/ttyUSB0';
@@ -18,10 +17,10 @@ const test_code_folder = './src/test/test_python/';
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
-	test('Create MicroPython terminal returns terminal.', async () => {
-		var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
-		assert.equal(term.name, 'MicroPython');
-	});
+	// test('Create MicroPython terminal returns terminal.', async () => {
+	// 	var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
+	// 	assert.equal(term.name, 'MicroPython');
+	// });
 
 	test('REPLParser.count getNumberOfSpacesAtStart returns correct number of spaces at beginning of the line.', async () => {
 		describe('getNumberOfSpacesAtAtart()', function () {

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { ISerialDevice } from './SerialDevice';
 import SerialPort = require('serialport');
+import { delay } from './util';
 const EventEmitter = require('events');
 
 const encoding = 'utf8'; // https://www.w3resource.com/node.js/nodejs-buffer.php
@@ -24,14 +25,6 @@ export class SerialConnection {
 		}
 	}
 
-	onRead(data: Buffer) {
-		this.eventEmitter.emit('onRead', data.toString());
-	}
-	
-	onOpen(){
-		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
-	}
-	
 	open(): boolean {
 		this.port.open(function (err: any) {
 			if (err) {
@@ -47,19 +40,41 @@ export class SerialConnection {
 		return false;
 	}
 
+	onRead(data: Buffer) {
+		this.eventEmitter.emit('onRead', data.toString());
+	}
+	
+	onOpen(){
+		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
+	}
+
 	write(line: string) {
-		console.log('writing');
 		this.port.write(line, function(err) {
 			if (err) {
 			  console.log('Error on write: ', err.message);
 			}
-			console.log('message written');
+			console.log(`wrote: ${line}`);
 		});
 	}
 
-	close() {
-		this.port.close();
+	reset(): Promise<boolean> {
+		return new Promise(async (resolve) => {
+			this.port.set( {dtr: false });
+			await delay(600);
+			this.port.set( {dtr: true });
+			await delay(100);
+			resolve(true);
+		});
 	}
-	
 
+	close(): Promise<boolean> {
+		return new Promise((resolve, reject) => {
+			this.port.close((err) => {
+				if(!err) {
+					resolve(true);
+				}
+				reject(false);
+			});
+		});
+	}
 }

@@ -38,7 +38,7 @@ export class REPLParser {
             neededBreaks = this.getNeededBreaksAfter(lines, i);
             line = line.concat(neededBreaks);
             line = this.removeLeadingSpaces(line);
-            preparedLines.push(line);
+            preparedLines.push(line + '\r\n');
         }
         return preparedLines;
     }
