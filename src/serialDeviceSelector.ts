@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ISerialDevice } from './SerialDevice';
-import { showQuickPick } from './userInput';
+import { showQuickPick } from './util';
 import SerialPort = require('serialport');
 
 export const PORT_PATH_KEY = "port";

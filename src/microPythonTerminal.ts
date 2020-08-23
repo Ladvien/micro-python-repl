@@ -93,11 +93,12 @@ export class MicroPythonTerminal {
                 const line = lines[i];
                 if(this.replReady) {
                     this.sendInput(<string>line);
-                    await delay(150);
+                    this.replReady = false;
+                    await delay(30);
                     i++;
                 } else {
                     console.log('waited');
-                    await delay(500);
+                    await delay(200);
                 }
             }
         });

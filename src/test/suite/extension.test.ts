@@ -167,6 +167,38 @@ suite('Extension Test Suite', () => {
 			});
 		});
 	});
+
+	// TODO: Finish tests.
+	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', async () => {
+		const file_name = 'wait_for_ready.py';
+		describe(`getNeededBreaksAfter processes ${file_name}`, function () {
+
+			var replParser = new REPLParser();
+			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
+
+			var tests = [
+				{args: { lines: lines, currentPos:  0}, expected: 'def hello():\n'},
+				{args: { lines: lines, currentPos:  1}, expected: `print('hello')\n`},
+				{args: { lines: lines, currentPos:  2}, expected: `print('small talk')\n`},
+				{args: { lines: lines, currentPos:  3}, expected: `print('goodbye')\n`},
+			];
+
+			let chunks = replParser.prepareInputChunk(lines);
+
+			it('correctly excludes empty lines from chunks array', function(){
+				assert.equal(chunks.length, 4);
+			});
+
+			tests.forEach(function (test) {
+				for (let i = 0; i < chunks.length; i++) {
+					const chunk = chunks[i];
+					it('correctly sends or does not send line "' + test.args.lines[i] + '"', function (){
+						assert.equal(chunk, tests[i].expected);
+					});
+				}
+			});
+		});
+	});
 	// test('prepareChunkToSend handles function definition then function call.', async () => {
 	// 	// var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
 	// 	// var serialDevice = new SerialDevice(test_port, test_baud);
