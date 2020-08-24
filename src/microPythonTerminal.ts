@@ -101,8 +101,7 @@ export class MicroPythonTerminal {
                     await delay(200);
                 }
             }
-            this.log('Done');
-            resolve('Done');
+            resolve();
         });
     }
 

@@ -192,9 +192,11 @@ suite('Extension Test Suite', async () => {
 
 			// DO NOT REMOVE
 			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
-			it('Should end with done.', async () => {
+			it('.', async () => {
 				const test = await microPyTerm.sendSelectedText(lines);
-				assert.equal(test, 'Done');
+				let file = fs.readFileSync(logPath);
+				let lastLine = file.toString().split('\n')[50];
+				assert.equal(`print('50')0xd`, lastLine);
 			});
 		});
 	});
