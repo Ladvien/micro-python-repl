@@ -7,7 +7,8 @@ export function run(): Promise<void> {
 	// https://mochajs.org/api/mocha
 	const mocha = new Mocha({
 		ui: 'tdd',
-		color: true
+		color: true,
+		bail: true
 	});
 
 	const testsRoot = path.resolve(__dirname, '..');

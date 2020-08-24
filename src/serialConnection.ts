@@ -49,11 +49,11 @@ export class SerialConnection {
 	}
 
 	write(line: string) {
-		this.port.write(line, function(err) {
+		this.port.write(line, (err) => {
 			if (err) {
-			  console.log('Error on write: ', err.message);
+				console.log('Error on write: ', err.message);
 			}
-			console.log(`wrote: ${line}`);
+			console.log(this.nonAsciiToHex(line));
 		});
 	}
 
@@ -77,4 +77,18 @@ export class SerialConnection {
 			});
 		});
 	}
+
+	nonAsciiToHex(line: String): String {
+        let parsedString = "";
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const rawChar = char.charCodeAt(0);
+            if (rawChar >= 32 && rawChar < 127 || rawChar === 10) {
+                parsedString += char;
+            } else {
+                parsedString += '0x' + rawChar.toString(16);
+            }
+        }
+        return parsedString;
+    }
 }

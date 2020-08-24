@@ -16,20 +16,20 @@
   "contributes": {
     "commands": [
       {
-        "command": "micro-python-terminal.helloWorld",
-        "title": "Hello World"
-      },
-      {
         "command": "micro-python-terminal.sendTextTermCommand",
-        "title": "Send to MicroPython"
+        "title": "MicroPython: Send to REPL"
       },
       {
         "command": "micro-python-terminal.createTerm",
-        "title": "Create MicroPython Terminal"
+        "title": "MicroPython: Create MicroPython Terminal"
       },
       {
         "command": "micro-python-terminal.selectDevice",
-        "title": "Select MicroPython USB device"
+        "title": "MicroPython: Select MicroPython USB device"
+      },
+      {
+        "command": "micro-python-terminal.clearLogs",
+        "title": "MicroPython: Clear Logs"
       }
     ]
   },

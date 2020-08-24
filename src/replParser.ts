@@ -2,35 +2,23 @@ import * as vscode from 'vscode';
 import { delay } from './util';
 import * as termCon from './terminalConstants';
 
-
-
 export class REPLParser {
-    BACKSPACE: string;
-    SPACES_PER_INDENT: number;
-    REDUCE_INDENT: string;
-    EXEC: string;
 
-    constructor() {
-        this.BACKSPACE             = '\u0008';
-        this.SPACES_PER_INDENT     = 4;
-        this.REDUCE_INDENT         = this.BACKSPACE; 
-        this.EXEC                  = '\n';
-    }
+    constructor() {}
 
     prepareInputChunk(textChunk: String): Array<String> {
         
         let preparedLines = new Array<String>();
-        let lines = textChunk.split('\n'); 
-        let neededBreaks = '';
+        let lines = textChunk.split('\n');
 
+        lines = lines.map(line => line.replace('\n', ''));
         lines = this.removeEmptyLines(lines);
-
+        
         for (let i = 0; i < lines.length; i++) {
             let line = lines[i];
-            neededBreaks = this.getNeededBreaksAfter(lines, i);
-            line = line.concat(neededBreaks);
+            line = line.concat(this.getNeededBreaksAfter(lines, i));
             line = this.removeLeadingSpaces(line);
-            preparedLines.push(line + '\r\n');
+            preparedLines.push(line);
         }
         return preparedLines;
     }
@@ -62,12 +50,12 @@ export class REPLParser {
   
         // If indented, check for unindent.
         if (currentIndentLevel > 0 &&  numberIndentsToReduce > 0) {
-            neededBreaks += this.EXEC;
+            neededBreaks += termCon.EXEC;
             for (let i = 0; i < numberIndentsToReduce; i++) {
-                neededBreaks += this.REDUCE_INDENT;
+                neededBreaks += termCon.REDUCE_INDENT;
             }
         }
-        neededBreaks += this.EXEC;
+        neededBreaks += termCon.EXEC;
         return neededBreaks;
     }
 
@@ -82,7 +70,7 @@ export class REPLParser {
 
     countLineIndents(line: string): number {
         const numberOfSpaces = this.getNumberOfSpacesAtStart(line);
-        const numberOfIndents = Math.floor(numberOfSpaces / this.SPACES_PER_INDENT);
+        const numberOfIndents = Math.floor(numberOfSpaces / termCon.SPACES_PER_INDENT);
         return numberOfIndents;
     }
 

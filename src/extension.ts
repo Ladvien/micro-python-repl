@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { window } from 'vscode';
 import { Range } from 'vscode';
-import SerialPort = require('serialport');
 import { ISerialDevice } from './SerialDevice';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay } from './util';
@@ -62,11 +61,24 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
+	let clearLogs = vscode.commands.registerCommand('micro-python-terminal.clearLogs', async () => {
+		microPyTerm.selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
+			if (undefined !== terminal){
+				microPyTerm.clearLog();
+			} else {
+				window.showErrorMessage('No open document.');
+			}
+		}).catch((err) => {
+			window.showErrorMessage('Unable find or create MicroPython terminal.');
+		});
+	});
+
 
 	const subscriptions = [
 		microPyTermCommand,
 		sendTextTermCommand,
-		selectDeviceCommand
+		selectDeviceCommand,
+		clearLogs
 	];
 
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);
@@ -95,7 +107,7 @@ function connectTerminalToREPL(): Promise<boolean> {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		// Ensure REPL object exists.
 		if (microPyTerm === undefined) {
-			microPyTerm = new MicroPythonTerminal(serialDevice);
+			microPyTerm = new MicroPythonTerminal(serialDevice, '/home/ladvien/micro-python-terminal/src/test/log.txt');
 		}
 		microPyTerm.selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (terminal !== undefined) {

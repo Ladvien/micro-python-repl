@@ -4,7 +4,7 @@ import { REPLParser } from './replParser';
 import { ISerialDevice } from './SerialDevice';
 import { SerialConnection } from './serialConnection';
 import * as termCon from './terminalConstants';
-import { resolve } from 'path';
+import * as fs from 'fs';
 
 const EventEmitter = require('events');
 // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
@@ -17,6 +17,7 @@ export class MicroPythonTerminal {
     replConnected: Boolean;
     rxBuffer: String;
     txBuffer: String;
+    logPath: String;
 
     replParser: REPLParser;
     serialDevice: ISerialDevice;
@@ -24,9 +25,10 @@ export class MicroPythonTerminal {
     eventEmitter: typeof EventEmitter;
     writeEmitter: vscode.EventEmitter<string>;
 
-    constructor(serialDevice: ISerialDevice) {
+    constructor(serialDevice: ISerialDevice, logPath: string = "") {
 
         this.serialDevice = serialDevice;
+        this.logPath = logPath;
         this.welcomeMsg = 'Welcome to MicroPython Terminal\r\n';
         this.replReady = true;
         this.rxBuffer = '';
@@ -69,10 +71,9 @@ export class MicroPythonTerminal {
     onRead(data: Buffer) {
         const line = data.toString('utf8');
         this.rxBuffer += line;
-        if (this.rxBuffer.includes('>>>')) { 
+        if (this.rxBuffer.includes('>>>') || this.rxBuffer.includes('...')) { 
             this.replReady = true;
             this.rxBuffer = '';
-            console.log('Terminal ready.');
         }
         this.sendOutput(data.toString('utf8'));
     }
@@ -97,14 +98,15 @@ export class MicroPythonTerminal {
                     await delay(30);
                     i++;
                 } else {
-                    console.log('waited');
                     await delay(200);
                 }
             }
+            resolve();
         });
     }
 
     async sendOutput(line: String) {
+        if(this.logPath !== ''){ this.log(line); }
         this.sendText(<string>line);
     }
 
@@ -136,7 +138,6 @@ export class MicroPythonTerminal {
     
     selectMicroPythonTerm(terminals: readonly vscode.Terminal[]): Promise<vscode.Terminal> {
         return new Promise(async (resolve) => {
-            console.log('here');
             if (undefined === terminals.find(term => term.name === 'MicroPython')) {
                 const terminal = vscode.window.createTerminal({
                     name: `MicroPython`,
@@ -149,6 +150,38 @@ export class MicroPythonTerminal {
             }
         });
     }
+
+    clearLog() {
+        fs.writeFileSync(<string>this.logPath, "");
+    }
+    
+    log(line: String) {
+        line = this.nonAsciiToHex(line);
+        try{
+            if (fs.existsSync(<string>this.logPath)) {
+                fs.appendFileSync(<string>this.logPath, line);
+            } else {
+                fs.writeFileSync(<string>this.logPath, line);
+            }
+        } catch (err) {
+
+        }
+    }
+
+    nonAsciiToHex(line: String): String {
+        let parsedString = "";
+        for (let i = 0; i < line.length; i++) {
+            const char = line[i];
+            const rawChar = char.charCodeAt(0);
+            if (rawChar >= 32 && rawChar < 127 || rawChar === 10) {
+                parsedString += char;
+            } else {
+                parsedString += '0x' + rawChar.toString(16);
+            }
+        }
+        return parsedString;
+    }
+    
 
 }
 
