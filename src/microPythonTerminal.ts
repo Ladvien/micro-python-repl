@@ -86,7 +86,7 @@ export class MicroPythonTerminal {
         this.writeEmitter.fire(line);
     }
 
-    async sendSelectedText(chunk: String) {
+    async sendSelectedText(chunk: String): Promise<String> {
         return new Promise(async (resolve) => {
             let lines = this.replParser.prepareInputChunk(chunk);
             let i = 0;
@@ -101,16 +101,17 @@ export class MicroPythonTerminal {
                     await delay(200);
                 }
             }
-            resolve();
+            this.log('Done');
+            resolve('Done');
         });
     }
 
     async sendOutput(line: String) {
-        if(this.logPath !== ''){ this.log(line); }
         this.sendText(<string>line);
     }
 
     sendInput(chunk: string) {
+        if(this.logPath !== ''){ this.log(chunk); }
         this.serialConnection.write(<string>chunk);
     }
 

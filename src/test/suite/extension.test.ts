@@ -8,19 +8,17 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
+import { ISerialDevice } from '../../SerialDevice';
+import { MicroPythonTerminal } from '../../microPythonTerminal';
+import { delay } from '../../util';
 
-const test_port = '/dev/ttyUSB1';
+const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
-const test_code_folder = './src/test/test_python/';
+const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_python/';
+const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
-
-suite('Extension Test Suite', () => {
+suite('Extension Test Suite', async () => {
 	vscode.window.showInformationMessage('Start all tests.');
-
-	// test('Create MicroPython terminal returns terminal.', async () => {
-	// 	var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
-	// 	assert.equal(term.name, 'MicroPython');
-	// });
 
 	test('REPLParser.count getNumberOfSpacesAtStart returns correct number of spaces at beginning of the line.', async () => {
 		describe('getNumberOfSpacesAtStart()', function () {
@@ -179,38 +177,25 @@ suite('Extension Test Suite', () => {
 	});
 
 	// TODO: Finish tests.
-	// test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', async () => {
-	// 	const file_name = 'wait_for_ready.py';
-	// 	describe(`getNeededBreaksAfter processes ${file_name}`, function () {
+	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
 
-	// 		let serialDevice: ISerialDevice;
-	// 		let microPyTerm: MicroPythonTerminal;
-	// 		serialDevice = new ISerialDevice(test_port, test_baud);
-	// 		microPyTerm = new MicroPythonTerminal(serialDevice);
-	// 		microPyTerm.clearLog();
+		const file_name = 'wait_for_ready.py';
+		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
 
-	// 		let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
+			let serialDevice: ISerialDevice;
+			let microPyTerm: MicroPythonTerminal;
+			serialDevice = new ISerialDevice(test_port, test_baud);
+			microPyTerm = new MicroPythonTerminal(serialDevice, logPath);
+			microPyTerm.clearLog();
 
-	// 		var tests = [
-	// 			{args: { lines: lines, currentPos:  0}, expected: 'def hello():\n'},
-	// 			{args: { lines: lines, currentPos:  1}, expected: `print('hello')\n`},
-	// 			{args: { lines: lines, currentPos:  2}, expected: `print('small talk')\n`},
-	// 			{args: { lines: lines, currentPos:  3}, expected: `print('goodbye')\n`},
-	// 		];
+			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
 
-
-	// 		microPyTerm.sendSelectedText(lines);
-
-	// 		// tests.forEach(function (test) {
-	// 		// 	for (let i = 0; i < chunks.length; i++) {
-	// 		// 		const chunk = chunks[i];
-	// 		// 		it('correctly sends or does not send line "' + test.args.lines[i] + '"', function (){
-	// 		// 			assert.equal(chunk, tests[i].expected);
-	// 		// 		});
-	// 		// 	}
-	// 		// });
-	// 	});
-	// });
+			it('should work', async () => {
+				const test = await microPyTerm.sendSelectedText(lines);
+				assert.equal(test, 'Done');
+			});
+		});
+	});
 	// test('prepareChunkToSend handles function definition then function call.', async () => {
 	// 	// var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
 	// 	// var serialDevice = new SerialDevice(test_port, test_baud);
