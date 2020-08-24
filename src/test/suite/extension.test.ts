@@ -190,21 +190,12 @@ suite('Extension Test Suite', async () => {
 
 			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
 
-			it('should work', async () => {
+			// DO NOT REMOVE
+			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
+			it('Should end with done.', async () => {
 				const test = await microPyTerm.sendSelectedText(lines);
 				assert.equal(test, 'Done');
 			});
 		});
 	});
-	// test('prepareChunkToSend handles function definition then function call.', async () => {
-	// 	// var term = await pyTerminal.selectMicroPythonTerm(vscode.window.terminals);
-	// 	// var serialDevice = new SerialDevice(test_port, test_baud);
-	// 	// var repl = new REPL(term, serialDevice);
-	// 	var replParser = new REPLParser();
-
-	// 	// replParser.
-
-		
-	// });
-
 });
