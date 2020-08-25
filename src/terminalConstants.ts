@@ -21,12 +21,3 @@ export const BACKSPACE              = '\u0008';
 export const BACKSPACE_CLEAR        = `${BACKSPACE} ${BACKSPACE}`;
 export const REDUCE_INDENT          = BACKSPACE; 
 export const EXEC                   = '\r\n';
-
-// >>> def hello():
-// ...     print('hello')
-// ... 
-// >>> 
-// )
-// 0xd
-// 0x7f
-// 0xd

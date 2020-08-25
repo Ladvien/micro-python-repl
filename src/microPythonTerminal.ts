@@ -14,9 +14,7 @@ export class MicroPythonTerminal {
     
     welcomeMsg: string;
     replReady: boolean;
-    replConnected: Boolean;
     rxBuffer: String;
-    txBuffer: String;
     logPath: String;
 
     replParser: REPLParser;
@@ -32,18 +30,16 @@ export class MicroPythonTerminal {
         this.welcomeMsg = 'Welcome to MicroPython Terminal\r\n';
         this.replReady = true;
         this.rxBuffer = '';
-        this.txBuffer = '';
                         
         this.writeEmitter = new vscode.EventEmitter<string>();
         const pty: vscode.Pseudoterminal = {
             onDidWrite: this.writeEmitter.event,
             open: () => this.open(),
             close: () => this.close(),
-            handleInput: data => this.userInput(data),
+            handleInput: data => this.writeToDevice(data),
         };
         vscode.window.createTerminal({ name: 'MicroPython', pty });
 
-        this.replConnected = false;
         this.eventEmitter = new EventEmitter();
         this.eventEmitter.on('onRead', (data: Buffer) => this.onRead(data));
 
@@ -54,64 +50,14 @@ export class MicroPythonTerminal {
 
     async open() {
         await delay(termCon.DELAY_BEFORE_WELCOME);
-        this.sendText(termCon.CLEAR_ALL);
-        this.sendText(this.welcomeMsg);
+        this.sendToDisplay(termCon.CLEAR_ALL);
+        this.sendToDisplay(this.welcomeMsg);
         await this.reset();
     }
 
     close() {
-        console.log("MicroPy Term closed.");
-    }
-
-    clearScreen() {
-        this.sendText(termCon.CLEAR_ALL);
-        this.sendText(termCon.RESET_CUR);
-    }
-
-    onRead(data: Buffer) {
-        const line = data.toString('utf8');
-        this.rxBuffer += line;
-        if (this.rxBuffer.includes('>>>') || this.rxBuffer.includes('...')) { 
-            this.replReady = true;
-            this.rxBuffer = '';
-        }
-        this.sendOutput(data.toString('utf8'));
-    }
-
-    userInput(line: string){
-        this.sendInput(line);
-    }
-
-    sendText(line: string) {
-        this.writeEmitter.fire(line);
-    }
-
-    async sendSelectedText(chunk: String): Promise<String> {
-        return new Promise(async (resolve) => {
-            let lines = this.replParser.prepareInputChunk(chunk);
-            let i = 0;
-            while(i !== lines.length) {
-                const line = lines[i];
-                if(this.replReady) {
-                    this.sendInput(<string>line);
-                    this.replReady = false;
-                    await delay(30);
-                    i++;
-                } else {
-                    await delay(200);
-                }
-            }
-            resolve();
-        });
-    }
-
-    async sendOutput(line: String) {
-        this.sendText(<string>line);
-    }
-
-    sendInput(chunk: string) {
-        if(this.logPath !== ''){ this.log(chunk); }
-        this.serialConnection.write(<string>chunk);
+        vscode.window.showInformationMessage('MicroPy Term closed.');
+        this.replReady = false;
     }
 
     shutdown(): Promise<boolean> {
@@ -151,11 +97,55 @@ export class MicroPythonTerminal {
         });
     }
 
+    async sendSelectedText(chunk: String): Promise<String> {
+        return new Promise(async (resolve) => {
+            let lines = this.replParser.prepareInputChunk(chunk);
+            let i = 0;
+            while(i !== lines.length) {
+                const line = lines[i];
+                if(this.replReady) {
+                    this.writeToDevice(<string>line);
+                    this.replReady = false;
+                    await delay(30);
+                    i++;
+                } else {
+                    await delay(200);
+                }
+            }
+            resolve();
+        });
+    }
+
     clearLog() {
         fs.writeFileSync(<string>this.logPath, "");
     }
+
+    private clearScreen() {
+        this.sendToDisplay(termCon.CLEAR_ALL);
+        this.sendToDisplay(termCon.RESET_CUR);
+    }
+
+    private onRead(data: Buffer) {
+        const line = data.toString('utf8');
+        this.log(line);
+        this.rxBuffer += line;
+        if (this.rxBuffer.includes('>>>') || this.rxBuffer.includes('...')) { 
+            this.replReady = true;
+            this.rxBuffer = '';
+        }
+        this.sendToDisplay(data.toString('utf8'));
+    }
+
+    private writeToDevice(chunk: string) {
+        if(this.logPath !== ''){ this.log(chunk); }
+        this.serialConnection.write(<string>chunk);
+    }
+
+    private sendToDisplay(line: string) {
+        this.writeEmitter.fire(line);
+    }
     
-    log(line: String) {
+    private log(line: String) {
         line = this.nonAsciiToHex(line);
         try{
             if (fs.existsSync(<string>this.logPath)) {
@@ -168,7 +158,7 @@ export class MicroPythonTerminal {
         }
     }
 
-    nonAsciiToHex(line: String): String {
+    private nonAsciiToHex(line: String): String {
         let parsedString = "";
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
@@ -181,7 +171,5 @@ export class MicroPythonTerminal {
         }
         return parsedString;
     }
-    
-
 }
 

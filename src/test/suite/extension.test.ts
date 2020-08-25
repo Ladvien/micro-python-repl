@@ -18,6 +18,12 @@ const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_pyth
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
 suite('Extension Test Suite', async () => {
+
+	let serialDevice: ISerialDevice;
+	let microPyTerm: MicroPythonTerminal;
+	serialDevice = new ISerialDevice(test_port, test_baud);
+	microPyTerm = new MicroPythonTerminal(serialDevice, logPath);
+	
 	vscode.window.showInformationMessage('Start all tests.');
 
 	test('REPLParser.count getNumberOfSpacesAtStart returns correct number of spaces at beginning of the line.', async () => {
@@ -182,21 +188,31 @@ suite('Extension Test Suite', async () => {
 		const file_name = 'wait_for_ready.py';
 		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
 
-			let serialDevice: ISerialDevice;
-			let microPyTerm: MicroPythonTerminal;
-			serialDevice = new ISerialDevice(test_port, test_baud);
-			microPyTerm = new MicroPythonTerminal(serialDevice, logPath);
-			microPyTerm.clearLog();
-
 			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
 
 			// DO NOT REMOVE
 			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
-			it('.', async () => {
-				const test = await microPyTerm.sendSelectedText(lines);
+			it(`ensures the output from ${file_name} is print('50')0xd`, async () => {
+				microPyTerm.clearLog();
+				await microPyTerm.sendSelectedText(lines);
 				let file = fs.readFileSync(logPath);
-				let lastLine = file.toString().split('\n')[50];
-				assert.equal(`print('50')0xd`, lastLine);
+				let resultLines = file.toString().split('\n');
+				let secondToLastLine = resultLines[resultLines.length - 2];
+				let lastLine = resultLines[resultLines.length - 1];
+				assert.equal('500xd', secondToLastLine);
+				assert.equal(`>>> `, lastLine);
+			});
+		});
+	});
+
+	test('serialConnect.reset() forces the MicroPython device to reset.', () => {
+		describe(`serialConnect.reset() is executed and log file checked for welcome message`, () => {
+			it('Makes sure the reset() causes the MicroPython hello message to appears', async () => {
+				microPyTerm.clearLog();
+				await microPyTerm.reset();
+				await delay(1500);
+				let lines = fs.readFileSync(logPath).toString().split('\n');
+				assert.equal('>>> ', lines[lines.length - 1]);
 			});
 		});
 	});
