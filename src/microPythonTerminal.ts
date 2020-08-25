@@ -69,34 +69,7 @@ export class MicroPythonTerminal {
     async reset() {
         await this.serialConnection.reset();
     }
-
-    checkIfMicroPyTermExists(terminals: readonly vscode.Terminal[]): boolean {
-        return undefined !== this.selectMicroPythonTerm(terminals);
-    }
     
-    ensureTerminalExists(): boolean {
-        if ((<any>vscode.window).terminals.length === 0) {
-            vscode.window.showErrorMessage('No active terminals');
-            return false;
-        }
-        return true;
-    }
-    
-    selectMicroPythonTerm(terminals: readonly vscode.Terminal[]): Promise<vscode.Terminal> {
-        return new Promise(async (resolve) => {
-            if (undefined === terminals.find(term => term.name === 'MicroPython')) {
-                const terminal = vscode.window.createTerminal({
-                    name: `MicroPython`,
-                    hideFromUser: true
-                } as any);
-                await delay(1000);
-                resolve(terminal);
-            } else {
-                resolve(<vscode.Terminal>terminals.find(term => term.name === 'MicroPython'));
-            }
-        });
-    }
-
     async sendSelectedText(chunk: String): Promise<String> {
         return new Promise(async (resolve) => {
             let lines = this.replParser.prepareInputChunk(chunk);
