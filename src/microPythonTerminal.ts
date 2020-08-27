@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { delay } from './util';
+import { delay, selectMicroPythonTerm } from './util';
 import { REPLParser } from './replParser';
 import { ISerialDevice } from './SerialDevice';
 import { SerialConnection } from './serialConnection';
@@ -10,7 +10,6 @@ const EventEmitter = require('events');
 // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 export class MicroPythonTerminal {
-
     
     welcomeMsg: string;
     replReady: boolean;
@@ -39,9 +38,7 @@ export class MicroPythonTerminal {
             handleInput: data => this.writeToDevice(data),
         };
         vscode.window.createTerminal({ name: 'MicroPython', pty });
-
-        this.eventEmitter = new EventEmitter();
-        this.eventEmitter.on('onRead', (data: Buffer) => this.onRead(data));
+        this.eventEmitter = this.setupEmitter();
 
         this.serialConnection = new SerialConnection(serialDevice, this.eventEmitter);
         this.replParser = new REPLParser();
@@ -56,14 +53,9 @@ export class MicroPythonTerminal {
     }
 
     close() {
+        this.serialConnection.close();
         vscode.window.showInformationMessage('MicroPy Term closed.');
         this.replReady = false;
-    }
-
-    shutdown(): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            resolve(true);
-        });
     }
 
     async reset() {
@@ -109,13 +101,36 @@ export class MicroPythonTerminal {
         this.sendToDisplay(data.toString('utf8'));
     }
 
-    private writeToDevice(chunk: string) {
+    private async writeToDevice(chunk: string) {
         if(this.logPath !== ''){ this.log(chunk); }
-        this.serialConnection.write(<string>chunk);
+        if(this.serialConnection.connected) {
+            this.serialConnection.write(<string>chunk);
+        } else {
+            await this.checkForReconnect(chunk);
+        }
+    }
+
+    private async checkForReconnect(chunk: string): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            if(chunk === ' '){
+                if(!await this.serialConnection.isDeviceConnected()) { 
+                    console.log('ere');
+                    this.deviceNotConnected(); 
+                    reject(false);
+                }
+                console.log('resetting');
+                this.serialConnection.open();
+                await this.reset();
+                resolve(true);
+            }
+        });
     }
 
     private sendToDisplay(line: string) {
-        this.writeEmitter.fire(line);
+        if(this.serialConnection.connected) {
+            this.writeEmitter.fire(line);
+            console.log(line);
+        } 
     }
     
     private log(line: String) {
@@ -143,6 +158,43 @@ export class MicroPythonTerminal {
             }
         }
         return parsedString;
+    }
+	
+	private onOpen(){
+		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
+	}
+
+	private onDisconnect() {
+        this.lostConnection('Device disconnected unexpectedly.');
+	}
+
+	private onClose() {
+       this.lostConnection('Lost connection to device.');
+	}
+	
+	private onError(err: Error) {
+        console.log(err.name);
+		this.lostConnection('Device closed unexpectedly.');
+    }
+    
+    private lostConnection(message: string) {
+        vscode.window.setStatusBarMessage(`${message}`);
+        this.writeEmitter.fire(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+        this.writeEmitter.fire(`Press space to try and reconnect.${termCon.EXEC}`);
+    }
+
+    private deviceNotConnected() {
+        this.writeEmitter.fire(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
+        this.writeEmitter.fire(`Press space to try and reconnect.${termCon.EXEC}`);
+    }
+
+    private setupEmitter(): typeof EventEmitter {
+        let eventEmitter = new EventEmitter();
+        eventEmitter.on('onRead', (data: Buffer) => this.onRead(data));
+        eventEmitter.on('onDisconnect', () => this.onDisconnect());
+        eventEmitter.on('onClose', () => this.onClose());
+        eventEmitter.on('onError', (err: Error) => this.onError(err));
+        return eventEmitter;
     }
 }
 

@@ -22,7 +22,7 @@ entry 0x400806bc0xd
 0x1b[0;32mI (573) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b[0m0xd
 0x1b[0;32mI (579) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b[0m0xd
 0x1b[0;32mI (585) heap_init: At 3FFCC8A0 len 00013760 (77 KiB): DRAM0x1b[0m0xd
-0x1b[0;32mI (591) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b[0m0xd
+0x1b[0;32mI (592) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b[0m0xd
 0x1b[0;32mI (598) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b[0m0xd
 0x1b[0;32mI (604) heap_init: At 40099FB8 len 00006048 (24 KiB): IRAM0x1b[0m0xd
 0x1b[0;32mI (610) cpu_start: Pro cpu start user code0x1b[0m0xd

@@ -21,3 +21,8 @@ export const BACKSPACE              = '\u0008';
 export const BACKSPACE_CLEAR        = `${BACKSPACE} ${BACKSPACE}`;
 export const REDUCE_INDENT          = BACKSPACE; 
 export const EXEC                   = '\r\n';
+
+
+export const RED                    = `${ESC}[31m`;
+export const RESET_COLOR            = `${ESC}[39;49m`;
+// export const RESET_COLOR            = `${ESC}[0m`;

@@ -8,7 +8,11 @@ import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
 // TODO: Write README
 // TODO: Test disconnect, reconnect.
 // TODO: Test connect whe no device.
-
+// TODO: Test Windows and MacOS
+// TODO: Test changing port and baud after opening terminal.
+// TODO: Handle sending empty text to terminal.
+// TODO: If "Send Text" opens the terminal, add wait to ensure
+//		 no text is loss to warming up.
 
 let serialDevice: ISerialDevice;
 let microPyTerm: MicroPythonTerminal;
@@ -116,13 +120,8 @@ export function deactivate() {
 		for (let i = 0; i < vscode.window.terminals.length; i++) {
 			const terminal = vscode.window.terminals[i];
 			if (terminal.name === "MicroPython") {
-				microPyTerm.shutdown().then(async (result) => {
-					terminal.dispose();
-				}).catch(async (err) => {
-					vscode.window.showErrorMessage('Failed to shutdown MicroPython REPL.');
-					await delay(5000);
-					terminal.dispose();
-				});
+				microPyTerm.close();
+				terminal.dispose();
 			}
 		}
 	}
