@@ -24,5 +24,6 @@ export const EXEC                   = '\r\n';
 
 
 export const RED                    = `${ESC}[31m`;
+export const PURPLE                 = `${ESC}[38;5;128m`;
 export const RESET_COLOR            = `${ESC}[39;49m`;
 // export const RESET_COLOR            = `${ESC}[0m`;

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { window, Range } from 'vscode';
 import { ISerialDevice } from './SerialDevice';
-import { MicroPythonTerminal } from './microPythonTerminal';
+import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
 
@@ -15,7 +15,7 @@ import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
 //		 no text is loss to warming up.
 
 let serialDevice: ISerialDevice;
-let microPyTerm: MicroPythonTerminal;
+let microPyTerm: MicroPythonREPL;
 
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
@@ -101,7 +101,7 @@ function connectTerminalToREPL(): Promise<vscode.Terminal> {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		if (microPyTerm === undefined) {
-			microPyTerm = new MicroPythonTerminal(serialDevice);
+			microPyTerm = new MicroPythonREPL(serialDevice);
 		}
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (terminal !== undefined) {

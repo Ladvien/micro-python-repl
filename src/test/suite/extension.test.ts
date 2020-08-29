@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
-import { MicroPythonTerminal } from '../../microPythonTerminal';
+import { MicroPythonREPL } from '../../microPythonREPL';
 import { delay } from '../../util';
 
 const test_port = '/dev/ttyUSB0';
@@ -20,9 +20,9 @@ const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 suite('Extension Test Suite', async () => {
 
 	let serialDevice: ISerialDevice;
-	let microPyTerm: MicroPythonTerminal;
+	let microPyTerm: MicroPythonREPL;
 	serialDevice = new ISerialDevice(test_port, test_baud);
-	microPyTerm = new MicroPythonTerminal(serialDevice, logPath);
+	microPyTerm = new MicroPythonREPL(serialDevice, logPath);
 	
 	vscode.window.showInformationMessage('Start all tests.');
 

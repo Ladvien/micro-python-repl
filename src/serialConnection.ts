@@ -12,9 +12,11 @@ export class SerialConnection {
 	serialDevice: ISerialDevice;
 	eventEmitter: typeof EventEmitter;
 	connected: boolean;
+	isOpening: boolean;
 
 	constructor(serialDevice: ISerialDevice, eventEmitter: typeof EventEmitter) {
 		this.connected = false;
+		this.isOpening = false;
 		this.eventEmitter = eventEmitter;
 		this.serialDevice = serialDevice;
 		try {
@@ -32,18 +34,15 @@ export class SerialConnection {
 	open() {
 		if(this.port.isOpen) { 
 			this.connected = true; 
+			this.isOpening = false;
 			return;
 		}
-		this.port.open(function (err: any) {
-			if (err) {
-				vscode.window.showErrorMessage('Error opening device.', err);
-				return;
-			}
-		});
-		this.connected = true; 
+		this.isOpening = true;
+		this.port.open();
 	}
 
 	write(line: string) {
+		if(!this.connected) { return; }
 		this.port.write(line, (err) => {
 			if (err) {
 				vscode.window.showErrorMessage(`Error writing to device.`, err.message);
@@ -88,7 +87,6 @@ export class SerialConnection {
 	}
 
 	isDeviceConnected(): Promise<boolean> {
-
 		return new Promise((resolve, reject) => {
 			SerialPort.list().then((ports) => {
 				let found = ports.some(port => port.path === this.serialDevice.port);
@@ -105,8 +103,8 @@ export class SerialConnection {
 	}
 	
 	private onOpen(){
+		this.isOpening = false;
 		this.eventEmitter.emit('onOpen');
-		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
 	}
 
 	private onDisconnect() {
@@ -116,10 +114,28 @@ export class SerialConnection {
 	private onClose() {
 		this.lostConnection('onClose');
 	}
+
+	private failedOpen(message: String) {
+		this.connected = false;
+		this.isOpening = false;
+		this.eventEmitter.emit('failedOpen', message);
+	}
 	
 	private onError(err: Error) {
-		console.log(err.message);
-		this.lostConnection('onError');
+		console.log(err.name);
+		this.connected = false;
+
+		if(err.message.includes('cannot open')){
+			this.failedOpen(err.message);
+		} else if (err.message === 'Port is not open') {
+			console.log("Port isn't open.");
+			if(!this.isOpening){ this.open(); }	
+		}
+		else {
+			console.log('Unknown error');
+			console.log(err.message);
+		}
+		// this.lostConnection('onError', err);
 	}
 
 	private lostConnection(disconnectType: string, err?: Error) {
