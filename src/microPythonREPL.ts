@@ -35,14 +35,6 @@ export class MicroPythonREPL {
         this.replParser = new REPLParser();
         this.serialConnection = new SerialConnection(serialDevice, this.serialConnectEmitter);
         this.microPyTerm = new MicroPythonTerminal(this.microPyTermEmitter);
-        setTimeout(() => this.setReady(), 1500);
-    }
-
-    private setReady() {
-        this.replReady = true;
-        this.clearScreen();
-        this.welcomeMessage();
-        this.serialConnection.open();
     }
 
     close() {
@@ -101,27 +93,7 @@ export class MicroPythonREPL {
 
     private async writeToDevice(chunk: string) {
         if(this.logPath !== ''){ this.log(chunk); }
-        if(this.serialConnection.connected) {
-            this.serialConnection.write(<string>chunk);
-        } else {
-            await this.checkForReconnect(chunk);
-        }
-    }
-
-    private async checkForReconnect(chunk: string): Promise<boolean> {
-        return new Promise(async (resolve, reject) => {
-            if(chunk === ' '){
-                if(!await this.serialConnection.isDeviceConnected()) { 
-                    console.log('ere');
-                    this.deviceNotConnected(); 
-                    reject(false);
-                }
-                console.log('resetting');
-                this.serialConnection.open();
-                await this.reset();
-                resolve(true);
-            }
-        });
+        this.serialConnection.write(<string>chunk);
     }
 
     private sendSystemMessageToDisplay(line: string) {
@@ -129,10 +101,7 @@ export class MicroPythonREPL {
     }
 
     private sendToDisplay(line: string) {
-        if(this.serialConnection.connected) {
-            this.microPyTerm.sendToTerminal(line);
-            console.log(line);
-        } 
+        this.microPyTerm.sendToTerminal(line);
     }
     
     private log(line: String) {
@@ -162,13 +131,9 @@ export class MicroPythonREPL {
         return parsedString;
     }
 	
-	private onOpenSerialConnection(err: Error){
-        if(err.message.includes('Could not open device')){ 
-            this.lostConnection(err.message);
-            vscode.window.setStatusBarMessage(`Could not open ${this.serialDevice.port} at ${this.serialDevice.baud}`);
-            return; 
-        }
-		vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
+	private async onOpenSerialConnection(){
+        vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
+        await this.serialConnection.reset();
 	}
 
 	private onDisconnectedSerialDevice() {
@@ -178,35 +143,30 @@ export class MicroPythonREPL {
 	private onCloserSerialDevice() {
        this.lostConnection('Lost connection to device.');
     }
+
+    private lostConnection(message: string) {
+        vscode.window.setStatusBarMessage(`${message}`);
+        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+    }
     
     private onSerialConnectionFailedToOpen(message: String) {
-        this.replReady = true;
-        this.deviceNotConnected();
+        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
+        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
     }
 
     private welcomeMessage() {
         const message = 'Welcome to MicroPython Terminal for VSCode.';
         this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.PURPLE}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
     }
-    
-    private lostConnection(message: string) {
-        vscode.window.setStatusBarMessage(`${message}`);
-        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
-        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
-    }
-
-    private deviceNotConnected() {
-        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
-        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
-    }
 
     private setupSerialConnectionEmitter(): typeof EventEmitter {
         let eventEmitter = new EventEmitter();
         eventEmitter.on('onRead', (data: Buffer) => this.onReadSerialData(data));
-        eventEmitter.on('onOpen', (err: Error) => this.onOpenSerialConnection(err));
+        eventEmitter.on('onOpen', () => this.onOpenSerialConnection());
         eventEmitter.on('onDisconnect', () => this.onDisconnectedSerialDevice());
         eventEmitter.on('onClose', () => this.onCloserSerialDevice());
-        eventEmitter.on('failedOpen', (message: String) => this.onSerialConnectionFailedToOpen(message));
+        eventEmitter.on('onFailedOpen', (message: String) => this.onSerialConnectionFailedToOpen(message));
         return eventEmitter;
     }
 
@@ -219,16 +179,21 @@ export class MicroPythonREPL {
     }
 
     private terminalClosed() {
-        throw new Error("Method not implemented.");
+        this.replReady = false;
     }
 
-    private gotUserInput(text: String) {
-        console.log(text);
-        throw new Error("Method not implemented.");
+    private async gotUserInput(text: String) {
+        if(!this.serialConnection.connected && text === ' ') { 
+            this.serialConnection.open(); 
+            return;
+        }
+        this.writeToDevice(<string>text);
     }
 
     private terminalOpen() {
-        throw new Error("Method not implemented.");
+        this.clearScreen();
+        this.welcomeMessage();
+        this.serialConnection.open();
     }
 }
 

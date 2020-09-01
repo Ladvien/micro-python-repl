@@ -13,10 +13,12 @@ export class SerialConnection {
 	eventEmitter: typeof EventEmitter;
 	connected: boolean;
 	isOpening: boolean;
+	deviceInError: boolean;
 
 	constructor(serialDevice: ISerialDevice, eventEmitter: typeof EventEmitter) {
 		this.connected = false;
 		this.isOpening = false;
+		this.deviceInError = false;
 		this.eventEmitter = eventEmitter;
 		this.serialDevice = serialDevice;
 		try {
@@ -24,7 +26,6 @@ export class SerialConnection {
 		} catch (error) {
 			this.port = new SerialPort(this.serialDevice.port);
 		}
-		this.port.on('open', () => this.onOpen());
 		this.port.on('data', (data) => this.onRead(data));
 		this.port.on('disconnect', () => this.onDisconnect());
 		this.port.on('close', () => this.onClose());
@@ -38,7 +39,13 @@ export class SerialConnection {
 			return;
 		}
 		this.isOpening = true;
-		this.port.open();
+		this.port.open(() => this.onOpened());
+	}
+
+	async onOpened() {
+		this.isOpening = false;
+		this.connected = true;
+		this.eventEmitter.emit('onOpen');
 	}
 
 	write(line: string) {
@@ -51,7 +58,7 @@ export class SerialConnection {
 	}
 
 	reset(): Promise<boolean> {
-		return new Promise(async (resolve) => {
+		return new Promise(async (resolve, reject) => {
 			this.port.set( {dtr: false });
 			await delay(600);
 			this.port.set( {dtr: true });
@@ -99,12 +106,8 @@ export class SerialConnection {
 	}
 
 	private onRead(data: Buffer) {
+		this.deviceInError = false;
 		this.eventEmitter.emit('onRead', data.toString());
-	}
-	
-	private onOpen(){
-		this.isOpening = false;
-		this.eventEmitter.emit('onOpen');
 	}
 
 	private onDisconnect() {
@@ -118,24 +121,19 @@ export class SerialConnection {
 	private failedOpen(message: String) {
 		this.connected = false;
 		this.isOpening = false;
-		this.eventEmitter.emit('failedOpen', message);
+		this.eventEmitter.emit('onFailedOpen', message);
 	}
 	
 	private onError(err: Error) {
-		console.log(err.name);
-		this.connected = false;
 
-		if(err.message.includes('cannot open')){
+		this.connected = false;
+		
+		if(!this.deviceInError) {
+			console.log(err.name);
 			this.failedOpen(err.message);
-		} else if (err.message === 'Port is not open') {
-			console.log("Port isn't open.");
-			if(!this.isOpening){ this.open(); }	
+			this.deviceInError = true;
+			setTimeout(() => { this.deviceInError = false; }, 800);
 		}
-		else {
-			console.log('Unknown error');
-			console.log(err.message);
-		}
-		// this.lostConnection('onError', err);
 	}
 
 	private lostConnection(disconnectType: string, err?: Error) {
