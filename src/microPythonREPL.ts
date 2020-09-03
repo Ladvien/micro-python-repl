@@ -11,6 +11,12 @@ const EventEmitter = require('events');
 // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
 
 export class MicroPythonREPL {
+
+    TRIES_WAITING_FOR_READY = 10;
+    DELAY_BETWEEN_READY_TRIES = 300;
+
+    DELAY_BETWEEN_SEND_TEXT = 30;
+    DELAY_FOR_READY_DURING_SEND_TEXT = 300;
     
     replReady: boolean;
     rxBuffer: String;
@@ -37,6 +43,16 @@ export class MicroPythonREPL {
         this.microPyTerm = new MicroPythonTerminal(this.microPyTermEmitter);
     }
 
+    async waitForReady(): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            for (let index = 0; index < this.TRIES_WAITING_FOR_READY; index++) {
+                if(this.serialConnection && this.replReady) { resolve(true); }
+                await delay(this.DELAY_BETWEEN_READY_TRIES);
+            } 
+            reject(false);
+        });
+    }
+
     close() {
         this.serialConnection.close();
         vscode.window.showInformationMessage('MicroPy Term closed.');
@@ -61,10 +77,10 @@ export class MicroPythonREPL {
                 if(this.replReady) {
                     await this.writeToDevice(<string>line);
                     this.replReady = false;
-                    await delay(30);
+                    await delay(this.DELAY_BETWEEN_SEND_TEXT);
                     i++;
                 } else {
-                    await delay(200);
+                    await delay(this.DELAY_FOR_READY_DURING_SEND_TEXT);
                 }
             }
             resolve();

@@ -1,16 +1,23 @@
 // import * as assert from 'assert';
 const assert = require('assert');
+
 import { describe, before, it } from 'mocha';
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 import * as vscode from 'vscode';
 import * as fs from 'fs';
+				
+import { connectTerminalToREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
 import { MicroPythonREPL } from '../../microPythonREPL';
-import { delay } from '../../util';
+import { delay, selectMicroPythonTerm } from '../../util';
+import { fail } from 'assert';
+
+const SerialPort = require('serialport/test');
+const MockBinding = require('@serialport/binding-mock');
 
 const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
@@ -19,10 +26,8 @@ const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
 suite('Extension Test Suite', async () => {
 
-	let serialDevice: ISerialDevice;
-	let microPyTerm: MicroPythonREPL;
-	serialDevice = new ISerialDevice(test_port, test_baud);
-	microPyTerm = new MicroPythonREPL(serialDevice, logPath);
+	let serialDevice: ISerialDevice = new ISerialDevice(test_port, test_baud);
+	let microPyTerm = new MicroPythonREPL(serialDevice, logPath);
 	
 	vscode.window.showInformationMessage('Start all tests.');
 
@@ -194,13 +199,29 @@ suite('Extension Test Suite', async () => {
 			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
 			it(`ensures the output from ${file_name} is print('50')0xd`, async () => {
 				microPyTerm.clearLog();
-				await microPyTerm.sendSelectedText(lines);
-				let file = fs.readFileSync(logPath);
-				let resultLines = file.toString().split('\n');
-				let secondToLastLine = resultLines[resultLines.length - 2];
-				let lastLine = resultLines[resultLines.length - 1];
-				assert.equal('500xd', secondToLastLine);
-				assert.equal(`>>> `, lastLine);
+
+				if (microPyTerm === undefined) {
+					console.log(microPyTerm);
+					microPyTerm = new MicroPythonREPL(serialDevice);
+				}
+				selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
+					console.log(terminal);
+					if (terminal !== undefined) {
+						microPyTerm.waitForReady().then(async () => {
+							let file = fs.readFileSync(logPath);
+							let resultLines = file.toString().split('\n');
+							let secondToLastLine = resultLines[resultLines.length - 2];
+							let lastLine = resultLines[resultLines.length - 1];
+							await microPyTerm.sendSelectedText(lines);
+							assert.equal('500xd', secondToLastLine);
+							assert.equal(`>>> `, lastLine);
+						}).catch((err) => {
+							fail();
+						});
+					}
+				}).catch((err) => {
+					fail();
+				});
 			});
 		});
 	});
@@ -208,11 +229,47 @@ suite('Extension Test Suite', async () => {
 	test('serialConnect.reset() forces the MicroPython device to reset.', () => {
 		describe(`serialConnect.reset() is executed and log file checked for welcome message`, () => {
 			it('Makes sure the reset() causes the MicroPython hello message to appears', async () => {
-				microPyTerm.clearLog();
-				await microPyTerm.reset();
-				await delay(1500);
-				let lines = fs.readFileSync(logPath).toString().split('\n');
-				assert.equal('>>> ', lines[lines.length - 1]);
+
+				if (microPyTerm === undefined) {
+					console.log(microPyTerm);
+					microPyTerm = new MicroPythonREPL(serialDevice);
+				}
+				selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
+					console.log(terminal);
+					if (terminal !== undefined) {
+						microPyTerm.waitForReady().then(async () => {
+							microPyTerm.clearLog();
+							await microPyTerm.reset();
+							let lines = fs.readFileSync(logPath).toString().split('\n');
+							assert.equal('>>> ', lines[lines.length - 1]);
+						}).catch((err) => {
+							fail();
+						});
+					}
+				}).catch((err) => {
+					fail();
+				});
+			});
+		});
+	});
+
+	test('Checks SerialPort.MockBinding is working', function()  {
+		describe(`Opens a mock serialport and emits data`, function() {
+			it('Ensures the emitter fires and checks the output.', function(done) {
+
+				const testString = 'hello';
+
+				SerialPort.Binding = MockBinding;
+				MockBinding.createPort('/dev/test', { readyData: Buffer.from(''), echo: true, record: true });
+				const port = new SerialPort('/dev/test');
+
+				port.on('data', (data: Buffer) => {
+					assert.equal(data.toString(), testString);
+					done();
+				});
+				port.on('open', () => {
+					port.binding.emitData(testString);
+				});
 			});
 		});
 	});

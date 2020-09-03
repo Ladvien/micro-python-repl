@@ -5,14 +5,19 @@ import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
 
+// DONE: If "Send Text" opens the terminal, add wait to ensure
+//		 no text is loss to warming up.
+// DONE: Handle sending empty text to terminal.
+
+
 // TODO: Write README
 // TODO: Test disconnect, reconnect.
-// TODO: Test connect whe no device.
+// TODO: Test connect with no device.
 // TODO: Test Windows and MacOS
 // TODO: Test changing port and baud after opening terminal.
-// TODO: Handle sending empty text to terminal.
-// TODO: If "Send Text" opens the terminal, add wait to ensure
-//		 no text is loss to warming up.
+// TODO: sendSelectedText doesn't time out.  Add a maximum
+//       number of retries before discard text and throwing error.
+
 
 let serialDevice: ISerialDevice;
 let microPyTerm: MicroPythonREPL;
@@ -79,7 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);
 }
 
-function selectDevice(context: vscode.ExtensionContext) {
+export function selectDevice(context: vscode.ExtensionContext) {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage('Selecting USB-to-Serial device...$(sync~spin)');
 		const serialConnection = new SerialDeviceSelector();
@@ -97,15 +102,19 @@ function selectDevice(context: vscode.ExtensionContext) {
 	});
 }
 
-function connectTerminalToREPL(): Promise<vscode.Terminal> {
-	return new Promise((resolve, reject) => {
+export function connectTerminalToREPL(): Promise<vscode.Terminal> {
+	return new Promise(async (resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		if (microPyTerm === undefined) {
 			microPyTerm = new MicroPythonREPL(serialDevice);
 		}
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if (terminal !== undefined) {
-				resolve(terminal);
+				microPyTerm.waitForReady().then((result) => {
+					resolve();
+				}).catch((err) => {
+					reject();
+				});
 			}
 		}).catch((err) => {
 			statusBarMsg.dispose();
