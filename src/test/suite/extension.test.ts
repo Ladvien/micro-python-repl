@@ -10,7 +10,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 				
 import SerialPort = require('serialport');
-import { connectTerminalToREPL } from '../../extension';
+import { connectTerminalToREPL, deactivate } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
@@ -192,52 +192,59 @@ suite('Extension Test Suite', async () => {
 
 	test('connectTerminalToREPL', () => {
 		describe('Creates a PseudoTerminal named "MicroPython"', () => {
+			it('Terminal exists', (done) => {
+				connectTerminalToREPL(serialDevice).then(async () => {
+					const microPythonTerm = await selectMicroPythonTerm(vscode.window.terminals);
+					microPythonTerm.show();
+					assert.equal(microPythonTerm.name, 'MicroPython');
+					done();
+				}).catch((err) => {
+					fail();
+				});
+			});
+			it('deactivate() causes terminal to be disposed after short delay', async () => {
+				const microPythonTerm = await selectMicroPythonTerm(vscode.window.terminals);
+				deactivate();
+				await delay(500);
+				assert.equal(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
+			});
+		});
+	});
+	
+
+	test('microPythonREPL', () => {
+		describe('Initializes the SerialPort when loaded', () => {
 			it('replReady is true on instantiation', async () => {
 				const microPyREPL = new MicroPythonREPL(serialDevice);
 				microPyREPL.microPyTerm.terminal.show();
-				await delay(1500);
+				await delay(2500);
 				assert.equal(microPyREPL.replReady, true);
 				microPyREPL.serialConnection.close();
 			});
 			it('serialConnection.connected is true on instantiation', async () => {
 				const microPyREPL = new MicroPythonREPL(serialDevice);
 				microPyREPL.microPyTerm.terminal.show();
-				await delay(1500);
+				await delay(2500);
 				assert.equal(microPyREPL.serialConnection.connected, true);
 				microPyREPL.serialConnection.close();
 			});
+
+			// it('Sets serialConnection to true.', async () => {
+			// 	connectTerminalToREPL(serialDevice).then(() => {
+			// 		expect(lastLine).to.equal('>>> ');
+			// 		done();
+			// 	}).catch((err) => {
+					
+			// 	});
+			// });
 		});
 	});
 
-
-	// test('connectTerminalToREPL', () => {
-	// 	describe('Creates a PseudoTerminal named "MicroPython"', () => {
-	// 		it('Terminal exists', (done) => {
-	// 			connectTerminalToREPL(serialDevice).then(async () => {
-	// 				mlog.log('ere');
-	// 				const microPythonTerm = await selectMicroPythonTerm(vscode.window.terminals);
-	// 				expect(microPythonTerm.name).to.equal('MicroPython');
-	// 				done();
-	// 			}).catch((err) => {
-	// 				fail();
-	// 			});
-	// 		});
-	// 	});
-	// });
-
-	// test('microPythonREPL', () => {
-	// 	describe('Initializes the SerialPort when loaded', () => {
-	// 		it('Sets serialConnection to true.', async () => {
-	// 			connectTerminalToREPL(serialDevice).then(() => {
-	// 				expect(lastLine).to.equal('>>> ');
-	// 				done();
-	// 			}).catch((err) => {
-					
-	// 			});
-	// 		});
-	// 	});
-	// });
-
+	// TODO: Add test to check MicroPython terminal not created
+	//		 until the extension is loaded.
+	// TODO: Check the serial port was freed on deactivate().
+	// TODO: Check MicroPython terminal can be created, destroyed,
+	//		 and recreated.
 	
 	// // TODO: Finish tests.
 	// test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {

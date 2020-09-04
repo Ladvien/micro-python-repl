@@ -125,13 +125,9 @@ export function connectTerminalToREPL(serialDevice: ISerialDevice): Promise<void
 }
 
 export function deactivate() {
-	if (ensureTerminalExists()) {
-		for (let i = 0; i < vscode.window.terminals.length; i++) {
-			const terminal = vscode.window.terminals[i];
-			if (terminal.name === "MicroPython") {
-				microPyTerm.close();
-				terminal.dispose();
-			}
-		}
+	const terminal = vscode.window.terminals.find(term => term.name === 'MicroPython');
+	if(terminal !== undefined) {
+		microPyTerm.close();
+		terminal.dispose();
 	}
 }
