@@ -8,7 +8,7 @@ export function run(): Promise<void> {
 	const mocha = new Mocha({
 		ui: 'tdd',
 		color: true,
-		bail: true,
+		bail: false,
 		timeout: 15000
 	});
 

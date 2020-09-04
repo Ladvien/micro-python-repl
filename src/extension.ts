@@ -28,7 +28,7 @@ export function activate(context: vscode.ExtensionContext) {
 	serialDevice = new ISerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <number>context.workspaceState.get(BAUD_RATE_KEY));
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', () => {
-		connectTerminalToREPL().then((result) => {
+		connectTerminalToREPL(serialDevice).then((result) => {
 			console.log(result);
 		}).catch((err) => {
 			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${err}`);
@@ -38,7 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if(undefined !== terminal) {
-				terminal = await connectTerminalToREPL();
+				await connectTerminalToREPL(serialDevice);
 			}
 			if (undefined !== window.activeTextEditor?.document) {
 				const doc = window.activeTextEditor?.document;
@@ -102,7 +102,7 @@ export function selectDevice(context: vscode.ExtensionContext) {
 	});
 }
 
-export function connectTerminalToREPL(): Promise<vscode.Terminal> {
+export function connectTerminalToREPL(serialDevice: ISerialDevice): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		if (microPyTerm === undefined) {

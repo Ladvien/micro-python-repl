@@ -9,6 +9,7 @@ export class MicroPythonTerminal {
 
     eventEmitter: typeof EventEmitter;
     writeEmitter = new vscode.EventEmitter<string>();
+    terminal: vscode.Terminal;
 
     constructor(emitter: typeof EventEmitter) {
         this.eventEmitter = emitter;
@@ -18,8 +19,8 @@ export class MicroPythonTerminal {
             close: () => this.onClose(),
             handleInput: data => this.onUserInput(data)
         };
-
-        vscode.window.createTerminal({ name: 'MicroPython', pty });
+        
+        this.terminal = vscode.window.createTerminal({ name: 'MicroPython', pty });
     }
 
     sendToTerminal(text: String) {
