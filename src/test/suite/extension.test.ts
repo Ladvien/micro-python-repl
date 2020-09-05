@@ -1,14 +1,12 @@
-// import * as assert from 'assert';
-const assert = require('assert');
+import assert = require('assert');
+// const assert = require('assert');
 
 import { describe, before, it } from 'mocha';
-const expect = require('chai').expect;
 
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-				
+
+import { Terminal } from 'vscode';
 import SerialPort = require('serialport');
 import { connectTerminalToREPL, deactivate } from '../../extension';
 import { REPLParser } from '../../replParser';
@@ -203,10 +201,19 @@ suite('Extension Test Suite', async () => {
 				});
 			});
 			it('deactivate() causes terminal to be disposed after short delay', async () => {
-				const microPythonTerm = await selectMicroPythonTerm(vscode.window.terminals);
+				await selectMicroPythonTerm(vscode.window.terminals);
 				deactivate();
-				await delay(500);
+				await delay(900);
 				assert.equal(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
+			});
+			it('Create new MicroPython terminal after deactivate()', async () => {
+				await selectMicroPythonTerm(vscode.window.terminals);
+				// TODO: deactivate() should wait until onClose is 
+				//       emitted by the SerialPort.
+				deactivate();
+				await delay(900);
+				await selectMicroPythonTerm(vscode.window.terminals);
+				assert.notEqual(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
 			});
 		});
 	});
@@ -229,14 +236,15 @@ suite('Extension Test Suite', async () => {
 				microPyREPL.serialConnection.close();
 			});
 
-			// it('Sets serialConnection to true.', async () => {
-			// 	connectTerminalToREPL(serialDevice).then(() => {
-			// 		expect(lastLine).to.equal('>>> ');
-			// 		done();
-			// 	}).catch((err) => {
-					
-			// 	});
-			// });
+			it('Sets serialConnection to true.', async () => {
+				const microPyREPL = new MicroPythonREPL(serialDevice, logPath);
+				microPyREPL.microPyTerm.terminal.show();
+				await delay(3500);
+				let logLines = fs.readFileSync(logPath).toString().split('\n');
+				let lastLine = logLines[logLines.length - 1];
+				assert.equal(lastLine, '>>> ');
+				microPyREPL.serialConnection.close();
+			});
 		});
 	});
 
@@ -247,95 +255,46 @@ suite('Extension Test Suite', async () => {
 	//		 and recreated.
 	
 	// // TODO: Finish tests.
-	// test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
+	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
 
-	// 	const file_name = 'wait_for_ready.py';
-	// 	describe(`sendSelectedText only sends line when REPL is ready.`, () => {
+		const file_name = 'wait_for_ready.py';
+		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
 
-	// 		let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
+			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
 
-	// 		// DO NOT REMOVE
-	// 		// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
-	// 		it(`ensures the output from ${file_name} is print('50')0xd`, (done) => {
-	// 			if (microPyTerm === undefined) {
-	// 				console.log(microPyTerm);
-	// 				microPyTerm = new MicroPythonREPL(serialDevice);
-	// 			}
-	// 			microPyTerm.clearLog();
-	// 			selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
-	// 				mlog.log(terminal.name);
-	// 				terminal.show();
-	// 				if (terminal !== undefined) {
-	// 					mlog.log(microPyTerm.serialConnection.connected);
-	// 					mlog.log(microPyTerm.replReady);
-	// 					microPyTerm.waitForReady().then(async () => {
-							
-	// 						await microPyTerm.sendSelectedText(lines);
-	// 						let file = fs.readFileSync(logPath);
-	// 						let resultLines = file.toString().split('\n');
-	// 						let secondToLastLine = resultLines[resultLines.length - 2];
-	// 						let lastLine = resultLines[resultLines.length - 1];
-	// 						// assert.equal('500xd', secondToLastLine);
-	// 						// assert.equal(`>>> `, lastLine);
-	// 						expect(lastLine).to.equal('>>> ');
-	// 						done();
-	// 					}).catch((err) => {
-	// 						mlog.log('microPyTerm.waitForReady failed.');
-	// 						fail();
-	// 					});
-	// 				}
-	// 			}).catch((err) => {
-	// 				mlog.log('Failed to selectMicroPythonTerm');
-	// 				fail();
-	// 			});
-	// 		});
-	// 	});
-	// });
+			// DO NOT REMOVE
+			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
+			it(`ensures the output from ${file_name} is print('50')0xd`, async () => {
 
-	// test('serialConnect.reset() forces the MicroPython device to reset.', () => {
-	// 	describe(`serialConnect.reset() is executed and log file checked for welcome message`, () => {
-	// 		it('Makes sure the reset() causes the MicroPython hello message to appears', async () => {
+				const microPyREPL = new MicroPythonREPL(serialDevice, logPath);
+				microPyREPL.clearLog();
+				microPyREPL.microPyTerm.terminal.show();
+				await delay(3500);
+				await microPyREPL.sendSelectedText(lines);
+				let logLines = fs.readFileSync(logPath).toString().split('\n');
+				let secondToLastLine = logLines[logLines.length - 2];
+				let lastLine = logLines[logLines.length - 1];
+				assert.equal('500xd', secondToLastLine);
+				assert.equal(`>>> `, lastLine);
+				microPyREPL.serialConnection.close();
+			});
+		});
+	});
 
-	// 			if (microPyTerm === undefined) {
-	// 				console.log(microPyTerm);
-	// 				microPyTerm = new MicroPythonREPL(serialDevice);
-	// 			}
-	// 			selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
-	// 				if (terminal !== undefined) {
-	// 					microPyTerm.waitForReady().then(async () => {
-	// 						microPyTerm.clearLog();
-	// 						await microPyTerm.reset();
-	// 						let lines = fs.readFileSync(logPath).toString().split('\n');
-	// 						assert.equal('>>> ', lines[lines.length - 1]);
-	// 					}).catch((err) => {
-	// 						fail();
-	// 					});
-	// 				}
-	// 			}).catch((err) => {
-	// 				fail();
-	// 			});
-	// 		});
-	// 	});
-	// });
+	test('serialConnect.reset() forces the MicroPython device to reset.', () => {
+		describe(`serialConnect.reset() is executed and log file checked for welcome message`, () => {
+			it('Makes sure the reset() causes the MicroPython hello message to appears', async () => {
+				const microPyREPL = new MicroPythonREPL(serialDevice, logPath);
+				microPyREPL.clearLog();
+				microPyREPL.microPyTerm.terminal.show();
+				await delay(3500);
 
-	// test('Checks SerialPort.MockBinding is working', function()  {
-	// 	describe(`Opens a mock serialport and emits data`, function() {
-	// 		it('Ensures the emitter fires and checks the output.', function(done) {
-
-	// 			const testString = 'hello';
-
-	// 			SerialPortTest.Binding = MockBinding;
-	// 			MockBinding.createPort('/dev/test', { readyData: Buffer.from(''), echo: true, record: true });
-	// 			const port = new SerialPortTest('/dev/test');
-
-	// 			port.on('data', (data: Buffer) => {
-	// 				assert.equal(data.toString(), testString);
-	// 				done();
-	// 			});
-	// 			port.on('open', () => {
-	// 				port.binding.emitData(testString);
-	// 			});
-	// 		});
-	// 	});
-	// });
+				await microPyREPL.reset();
+				await delay(3500);
+				let logLines = fs.readFileSync(logPath).toString().split('\n');
+				assert.equal(`>>> `, logLines[logLines.length - 1]);
+				microPyREPL.serialConnection.close();
+			});
+		});
+	});
 });

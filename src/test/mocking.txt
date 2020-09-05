@@ -31,3 +31,25 @@ port.on('data', function (data) {
 });
 port.binding.emitData(Buffer.from('Hi from my test!'));
 
+
+
+	test('Checks SerialPort.MockBinding is working', function()  {
+		describe(`Opens a mock serialport and emits data`, function() {
+			it('Ensures the emitter fires and checks the output.', function(done) {
+
+				const testString = 'hello';
+
+				SerialPortTest.Binding = MockBinding;
+				MockBinding.createPort('/dev/test', { readyData: Buffer.from(''), echo: true, record: true });
+				const port = new SerialPortTest('/dev/test');
+
+				port.on('data', (data: Buffer) => {
+					assert.equal(data.toString(), testString);
+					done();
+				});
+				port.on('open', () => {
+					port.binding.emitData(testString);
+				});
+			});
+		});
+	});

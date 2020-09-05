@@ -98,7 +98,7 @@ export class MicroPythonREPL {
 
     private onReadSerialData(data: Buffer) {
         const line = data.toString('utf8');
-        this.log(line);
+        if(this.logPath !== ''){ this.log(line); }
         this.rxBuffer += line;
         if (this.rxBuffer.includes('>>>') || this.rxBuffer.includes('...')) { 
             this.replReady = true;
@@ -129,7 +129,7 @@ export class MicroPythonREPL {
                 fs.writeFileSync(<string>this.logPath, line);
             }
         } catch (err) {
-
+            vscode.window.showErrorMessage(`Unable to log to ${this.logPath}`);
         }
     }
 
