@@ -64,7 +64,7 @@ entry 0x400806bc0xd
 0x1b[0;32mI (610) cpu_start: Pro cpu start user code0x1b[0m0xd
 0x1b[0;32mI (629) spi_flash: detected chip: generic0x1b[0m0xd
 0x1b[0;32mI (629) spi_flash: flash io: dio0x1b[0m0xd
-0x1b[0;32mI (630) cpu_start: Chip Revision: 10x1b[0m0xd
+0x1b[0;32mI (629) cpu_start: Chip Revision: 10x1b[0m0xd
 0x1b[0;33mW (631) cpu_start: Chip revision is higher than the one configured in menuconfig. Suggest to upgrade it.0x1b[0m0xd
 0x1b[0;32mI (642) cpu_start: Starting scheduler on PRO CPU.0x1b[0m0xd
 0x1b[0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b[0m0xd

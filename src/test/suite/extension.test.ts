@@ -8,7 +8,7 @@ import * as fs from 'fs';
 
 import { Terminal } from 'vscode';
 import SerialPort = require('serialport');
-import { connectTerminalToREPL, deactivate } from '../../extension';
+import { createMicroPythonREPL, closeTerm } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
@@ -17,8 +17,11 @@ import { delay, selectMicroPythonTerm } from '../../util';
 import { fail } from 'assert';
 const mlog = require('mocha-logger');
 
-// const SerialPortTest = require('serialport/test');
-// const MockBinding = require('@serialport/binding-mock');
+// TODO: Add test to check MicroPython terminal not created
+//		 until the extension is loaded.
+// TODO: Check the serial port was freed on deactivate().
+// TODO: Check MicroPython terminal can be created, destroyed,
+//		 and recreated.
 
 const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
@@ -180,7 +183,7 @@ suite('Extension Test Suite', async () => {
 			tests.forEach(function (test) {
 				for (let i = 0; i < lines.length; i++) {
 					const chunk = lines[i];
-					it('correctly sends or does not send line "' + test.args.lines[i] + '"', function (){
+					it('correctly sends or does not send line "' + test.args.lines[i].replace('\n', '') + '"', function (){
 						assert.equal(chunk, tests[i].expected);
 					});
 				}
@@ -191,29 +194,25 @@ suite('Extension Test Suite', async () => {
 	test('connectTerminalToREPL', () => {
 		describe('Creates a PseudoTerminal named "MicroPython"', () => {
 			it('Terminal exists', (done) => {
-				connectTerminalToREPL(serialDevice).then(async () => {
+				createMicroPythonREPL(serialDevice).then(async (microPyREPL) => {
 					const microPythonTerm = await selectMicroPythonTerm(vscode.window.terminals);
 					microPythonTerm.show();
 					assert.equal(microPythonTerm.name, 'MicroPython');
+					microPyREPL.serialConnection.close();
 					done();
 				}).catch((err) => {
 					fail();
 				});
 			});
 			it('deactivate() causes terminal to be disposed after short delay', async () => {
-				await selectMicroPythonTerm(vscode.window.terminals);
-				deactivate();
-				await delay(900);
-				assert.equal(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
-			});
-			it('Create new MicroPython terminal after deactivate()', async () => {
-				await selectMicroPythonTerm(vscode.window.terminals);
-				// TODO: deactivate() should wait until onClose is 
-				//       emitted by the SerialPort.
-				deactivate();
-				await delay(900);
-				await selectMicroPythonTerm(vscode.window.terminals);
-				assert.notEqual(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
+				createMicroPythonREPL(serialDevice).then(async (microPyTerm) => {
+					let term: any = await selectMicroPythonTerm(vscode.window.terminals);
+					term.dispose();
+					await delay(1900);
+					assert.equal(vscode.window.terminals.find(term => term.name === 'MicroPython'), undefined);
+				}).catch((err) => {
+					vscode.window.showErrorMessage(err);
+				});
 			});
 		});
 	});
@@ -248,12 +247,6 @@ suite('Extension Test Suite', async () => {
 		});
 	});
 
-	// TODO: Add test to check MicroPython terminal not created
-	//		 until the extension is loaded.
-	// TODO: Check the serial port was freed on deactivate().
-	// TODO: Check MicroPython terminal can be created, destroyed,
-	//		 and recreated.
-	
 	// // TODO: Finish tests.
 	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
 
@@ -297,4 +290,7 @@ suite('Extension Test Suite', async () => {
 			});
 		});
 	});
+
+	
+	
 });

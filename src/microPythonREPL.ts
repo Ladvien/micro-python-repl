@@ -53,10 +53,16 @@ export class MicroPythonREPL {
         });
     }
 
-    close() {
-        this.serialConnection.close();
-        vscode.window.showInformationMessage('MicroPy Term closed.');
-        this.replReady = false;
+    async close() {
+        return new Promise((resolve, reject) => {
+            vscode.window.showInformationMessage('MicroPy Term closed.');
+            this.replReady = false;
+            this.serialConnection.close().then((closedDevPath) => {
+                resolve(closedDevPath);
+            }).catch((err) => {
+                reject(err);
+            });
+        });
     }
 
     async reset() {
@@ -148,7 +154,6 @@ export class MicroPythonREPL {
     }
 	
 	private async onOpenSerialConnection(){
-        vscode.window.setStatusBarMessage(`Opened ${this.serialDevice.port} at ${this.serialDevice.baud}`);
         await this.serialConnection.reset();
 	}
 

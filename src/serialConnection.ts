@@ -67,14 +67,14 @@ export class SerialConnection {
 		});
 	}
 
-	close(): Promise<boolean> {
+	close(): Promise<string> {
 		return new Promise((resolve, reject) => {
+			if(!this.port.isOpen) { resolve(this.port.path); }
 			this.port.close((err) => {
 				if(!err) {
-					resolve(true);
+					resolve(this.port.path);
 				}
-				console.log(err);
-				reject(false);
+				reject(`Unable to close ${this.port.path}`);
 			});
 		});
 	}
