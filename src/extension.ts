@@ -1,3 +1,4 @@
+import { MicroPythonTerminal } from './microPythonTerminal';
 import * as vscode from 'vscode';
 import { Terminal } from 'vscode';
 import { window, Range } from 'vscode';
@@ -21,7 +22,9 @@ import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
 
 
 let serialDevice: ISerialDevice;
-let microPyTerm: MicroPythonREPL | undefined;
+let microREPL: MicroPythonREPL | undefined;
+let upyTerminal: MicroPythonTerminal | undefined;
+let emitter: typeof vscode.EventEmitter;
 
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
@@ -29,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
 	serialDevice = new ISerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <number>context.workspaceState.get(BAUD_RATE_KEY));
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', () => {
-		createMicroPythonREPL(serialDevice).then((result) => {
+		createMicroREPL(serialDevice).then((result) => {
 			console.log(result);
 		}).catch((err) => {
 			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${err}`);
@@ -39,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if(undefined !== terminal) {
-				await createMicroPythonREPL(serialDevice);
+				await createMicroREPL(serialDevice);
 			}
 			if (undefined !== window.activeTextEditor?.document) {
 				const doc = window.activeTextEditor?.document;
@@ -47,8 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
 				const textRange = new Range(start, end);
 
 				let chunk = doc.getText(textRange);
-				if(microPyTerm !== undefined) {
-					await microPyTerm.sendSelectedText(chunk);
+				if(microREPL !== undefined) {
+					await microREPL.sendSelectedText(chunk);
 				}
 			}
 
@@ -67,8 +70,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	const clearLogs = vscode.commands.registerCommand('micro-python-terminal.clearLogs', async () => {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
-			if (terminal !== undefined && microPyTerm !== undefined) {
-				microPyTerm.clearLog();
+			if (terminal !== undefined && microREPL !== undefined) {
+				microREPL.clearLog();
 			} else {
 				window.showErrorMessage('No open document.');
 			}
@@ -83,7 +86,7 @@ export function activate(context: vscode.ExtensionContext) {
 		selectDeviceCommand,
 		clearLogs
 	];
-	vscode.window.onDidCloseTerminal(closeTerm);
+	vscode.window.onDidCloseTerminal(shutdown);
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);
 }
 
@@ -105,47 +108,67 @@ export function selectDevice(context: vscode.ExtensionContext) {
 	});
 }
 
-export function createMicroPythonREPL(serialDevice: ISerialDevice): Promise<MicroPythonREPL> {
+export function createMicroREPL(serialDevice: ISerialDevice): Promise<MicroPythonREPL> {
 	return new Promise(async (resolve, reject) => {
-		const statusBarMsg = vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
-		if (microPyTerm === undefined) {
-			microPyTerm = new MicroPythonREPL(serialDevice);
+		vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
+		if(upyTerminal === undefined) {
+			upyTerminal = new MicroPythonTerminal();
+			upyTerminal.terminal.show();
+			await delay(300);
 		}
-		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
-			if (terminal !== undefined && microPyTerm !== undefined) {
-				microPyTerm.waitForReady().then((result) => {
-					if(microPyTerm !== undefined) {
-						vscode.window.setStatusBarMessage(`Opened ${microPyTerm.serialDevice.port} at ${microPyTerm.serialDevice.baud}`);
-						resolve(microPyTerm);
-					}
-					reject('MicroPython terminal undefined');
-				}).catch((err) => {
-					reject(err);
-				});
+		if(microREPL === undefined) {
+			microREPL = new MicroPythonREPL(upyTerminal, serialDevice);
+		}
+		microREPL.openSerialConnection();
+		microREPL.waitForReady().then(async (result) => {
+			if(microREPL !== undefined) {
+				vscode.window.setStatusBarMessage(`Opened ${microREPL.serialDevice.port} at ${microREPL.serialDevice.baud}`);
+				resolve(microREPL);
 			}
 		}).catch((err) => {
-			statusBarMsg.dispose();
-			window.showErrorMessage('Unable find or create MicroPython terminal.', err);
 			reject(err);
 		});
 	});
 }
 
-export async function closeTerm(terminal: any) {
+export async function closeMicroPyREPL(microPyTerm: MicroPythonREPL): Promise<void> {
+	return new Promise((resolve, reject) => {
+		microPyTerm.close().then(async () => {
+			await delay(1500);
+			resolve();
+		}).catch((err: any) => {
+			reject(err);
+		});
+	});
+}
+
+export async function closeTerm(terminal: any, microPyTerm: any) {
 	return new Promise(async (resolve, reject) => {
 		terminal.dispose();
 		if(terminal.name === "MicroPython") {
+			terminal = undefined;
 			if(microPyTerm !== undefined) {
-				microPyTerm.close().then(() => {
-					terminal = undefined;
+				closeMicroPyREPL(microPyTerm).then(() => {
 					microPyTerm = undefined;
 					resolve();
 				}).catch((err) => {
-					vscode.window.showErrorMessage(err);
 					reject(err);
 				});
+			} else {
+				resolve();
 			}
 		}
 		await delay(300);
 	});
+}
+
+export function shutdown(terminal: any) {
+	upyTerminal = undefined;
+	if(microREPL !== undefined) {
+		microREPL.close().then((result) => {
+			microREPL = undefined;
+		}).catch((err) => {
+			
+		});
+	}
 }

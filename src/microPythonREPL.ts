@@ -23,33 +23,43 @@ export class MicroPythonREPL {
     logPath: String;
 
     replParser: REPLParser;
-    microPyTerm: MicroPythonTerminal;
+    upyTerminal: MicroPythonTerminal | undefined;
     serialDevice: ISerialDevice;
     serialConnection: SerialConnection;
     
     serialConnectEmitter: typeof EventEmitter;
-    microPyTermEmitter: typeof EventEmitter;
+    upyTerminalEmitter: typeof EventEmitter;
 
-    constructor(serialDevice: ISerialDevice, logPath: string = "") {
+    constructor(upyTerminal: MicroPythonTerminal, serialDevice: ISerialDevice, logPath: string = "") {
+        this.upyTerminal = upyTerminal;
         this.replReady = false;
         this.serialDevice = serialDevice;
         this.logPath = logPath;
         this.rxBuffer = '';
-        this.microPyTermEmitter = this.setupMicroPythonTerminalEmitter();
+        this.upyTerminalEmitter = this.setupMicroPythonTerminalEmitter();
+        upyTerminal.eventEmitter = this.upyTerminalEmitter;
         this.serialConnectEmitter = this.setupSerialConnectionEmitter();
-        
         this.replParser = new REPLParser();
         this.serialConnection = new SerialConnection(serialDevice, this.serialConnectEmitter);
-        this.microPyTerm = new MicroPythonTerminal(this.microPyTermEmitter);
+    }
+
+    isMicroREPLReady(){
+        if(this.upyTerminal=== undefined) { return false; }
+        return (this.serialConnection.connected && this.upyTerminal.terminalShowing && this.replReady);
+    }
+
+    openSerialConnection() {
+        this.serialConnection.open();
     }
 
     async waitForReady(): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
+            if(this.serialConnection === undefined) { reject('serialConnect is undefined.'); } 
             for (let index = 0; index < this.TRIES_WAITING_FOR_READY; index++) {
-                if(this.serialConnection && this.replReady) { resolve(true); }
+                if(this.isMicroREPLReady()) { resolve(true); }
                 await delay(this.DELAY_BETWEEN_READY_TRIES);
             } 
-            reject(false);
+            reject(`waitForReady failed. serialConnect is ${this.serialConnection.connected}, replReady is ${this.replReady}, upyTerminalReady ${this.upyTerminal?.terminalShowing}`);
         });
     }
 
@@ -80,7 +90,7 @@ export class MicroPythonREPL {
             let i = 0;
             while(i !== lines.length) {
                 const line = lines[i];
-                if(this.replReady) {
+                if(this.isMicroREPLReady()) {
                     await this.writeToDevice(<string>line);
                     this.replReady = false;
                     await delay(this.DELAY_BETWEEN_SEND_TEXT);
@@ -119,11 +129,15 @@ export class MicroPythonREPL {
     }
 
     private sendSystemMessageToDisplay(line: string) {
-        this.microPyTerm.sendToTerminal(line);
+        if(this.upyTerminal){
+            this.upyTerminal.sendToTerminal(line);
+        }
     }
 
     private sendToDisplay(line: string) {
-        this.microPyTerm.sendToTerminal(line);
+        if(this.upyTerminal) {
+            this.upyTerminal.sendToTerminal(line);
+        }
     }
     
     private log(line: String) {
@@ -166,19 +180,28 @@ export class MicroPythonREPL {
     }
 
     private lostConnection(message: string) {
-        vscode.window.setStatusBarMessage(`${message}`);
-        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
-        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+        if(this.upyTerminal){
+            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+        } else {
+            vscode.window.setStatusBarMessage(`${message}`);
+        }
     }
     
     private onSerialConnectionFailedToOpen(message: String) {
-        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
-        this.microPyTerm.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+        if(this.upyTerminal){
+            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
+            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+        } else {
+            vscode.window.setStatusBarMessage(`${message}`);
+        }
     }
 
     private welcomeMessage() {
         const message = 'Welcome to MicroPython Terminal for VSCode.';
-        this.microPyTerm.sendToTerminal(`${termCon.EXEC}${termCon.PURPLE}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+        if(this.upyTerminal) {
+            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.PURPLE}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+        }
     }
 
     private setupSerialConnectionEmitter(): typeof EventEmitter {
@@ -195,12 +218,7 @@ export class MicroPythonREPL {
         let eventEmitter = new EventEmitter();
         eventEmitter.on('terminalOpen', () => this.terminalOpen());
         eventEmitter.on('termGotUserInput', (text: String) => this.gotUserInput(text));
-        eventEmitter.on('terminalClosed', () => this.terminalClosed());
         return eventEmitter;
-    }
-
-    private terminalClosed() {
-        this.replReady = false;
     }
 
     private async gotUserInput(text: String) {

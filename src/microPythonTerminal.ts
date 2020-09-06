@@ -1,3 +1,4 @@
+import { MicroPythonREPL } from './microPythonREPL';
 import * as vscode from 'vscode';
 const EventEmitter = require('events');
 
@@ -7,12 +8,14 @@ import * as fs from 'fs';
 
 export class MicroPythonTerminal {
 
-    eventEmitter: typeof EventEmitter;
+    eventEmitter = new EventEmitter;
     writeEmitter = new vscode.EventEmitter<string>();
     terminal: vscode.Terminal;
 
-    constructor(emitter: typeof EventEmitter) {
-        this.eventEmitter = emitter;
+    terminalShowing: boolean;
+
+    constructor() {
+        this.terminalShowing = false;
         const pty: vscode.Pseudoterminal = {
             onDidWrite: this.writeEmitter.event,
             open: () =>  this.onOpen(),
@@ -28,6 +31,7 @@ export class MicroPythonTerminal {
     }
 
     private onOpen() {
+        this.terminalShowing = true;
         this.eventEmitter.emit('terminalOpen');
     }
     
@@ -36,6 +40,7 @@ export class MicroPythonTerminal {
     }
 
     private onClose() {
+        this.terminalShowing = false;
         this.eventEmitter.emit('terminalClosed');
     }
 
