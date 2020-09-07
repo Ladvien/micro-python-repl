@@ -6,6 +6,10 @@
   "engines": {
     "vscode": "^1.47.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ladvien/micro-python-terminal"
+  },
   "publisher": "ladvien",
   "categories": [
     "Other"
