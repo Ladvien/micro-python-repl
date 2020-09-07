@@ -21,17 +21,22 @@ import { delay, selectMicroPythonTerm } from './util';
 // TODO: Test changing port and baud after opening terminal.
 
 
-let serialDevice: ISerialDevice;
 let microREPL: MicroPythonREPL | undefined;
 let upyTerminal: MicroPythonTerminal | undefined;
 let emitter: typeof vscode.EventEmitter;
 
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
+	
+	let port = <string>context.workspaceState.get(PORT_PATH_KEY);
+	let baud = <number>context.workspaceState.get(BAUD_RATE_KEY);
+	
+	// TODO: Create a unit test to clear that file and test
+	//       creating a terminal triggers checkIfSerialDeviceExists.
+	console.log(context.storagePath);
 
-	serialDevice = new ISerialDevice(<string>context.workspaceState.get(PORT_PATH_KEY), <number>context.workspaceState.get(BAUD_RATE_KEY));
-
-	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', () => {
+	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', async () => {
+		let serialDevice = await checkIfSerialDeviceExists(context, port, baud);
 		createMicroREPL(serialDevice).then((result) => {
 			console.log(result);
 		}).catch((err) => {
@@ -42,6 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if(undefined !== terminal) {
+				let serialDevice = await checkIfSerialDeviceExists(context, port, baud);
 				await createMicroREPL(serialDevice);
 			}
 			if (undefined !== window.activeTextEditor?.document) {
@@ -61,7 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	const selectDeviceCommand = vscode.commands.registerCommand('micro-python-terminal.selectDevice', async () => {
-		selectDevice(context).then(() => {
+		selectDevice(context).then((serialDevice) => {
 			vscode.window.setStatusBarMessage(`Selected ${serialDevice.port} at baud ${serialDevice.baud}`);
 		}).catch((err) => {
 			vscode.window.showErrorMessage(`Unable to find new device. ${err}`);
@@ -90,16 +96,29 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);
 }
 
-export function selectDevice(context: vscode.ExtensionContext) {
+export function checkIfSerialDeviceExists(context: vscode.ExtensionContext, port: string, baud: number): Promise<ISerialDevice> {
+	return new Promise((resolve, reject) => {
+		if(port !== undefined && baud !== undefined) {
+			resolve(new ISerialDevice(port, baud));
+	   	} else {
+		   selectDevice(context).then((serialDevice) => {
+			   resolve(serialDevice);
+		   }).catch((err) => {
+			   reject(err);
+		   });
+	   	}
+	});
+}
+
+export function selectDevice(context: vscode.ExtensionContext): Promise<ISerialDevice> {
 	return new Promise((resolve, reject) => {
 		const statusBarMsg = vscode.window.setStatusBarMessage('Selecting USB-to-Serial device...$(sync~spin)');
 		const serialConnection = new SerialDeviceSelector();
-		serialConnection.selectDevice().then((newSerialDevice) => {
-			serialDevice = newSerialDevice;
+		serialConnection.selectDevice().then((serialDevice) => {
 			context.workspaceState.update(PORT_PATH_KEY, serialDevice.port);
 			context.workspaceState.update(BAUD_RATE_KEY, serialDevice.baud);
 			statusBarMsg.dispose();
-			resolve();
+			resolve(serialDevice);
 		}).catch((err) => {
 			statusBarMsg.dispose();
 			vscode.window.showErrorMessage('Failed to set port or baud.');

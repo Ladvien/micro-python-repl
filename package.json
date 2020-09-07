@@ -6,7 +6,7 @@
   "engines": {
     "vscode": "^1.47.0"
   },
-  "publisher": "ladvien",
+  "publisher": "C. Thomas Brittain (aka, Ladvien)",
   "categories": [
     "Other"
   ],
@@ -27,10 +27,6 @@
       {
         "command": "micro-python-terminal.selectDevice",
         "title": "MicroPython: Select MicroPython USB device"
-      },
-      {
-        "command": "micro-python-terminal.clearLogs",
-        "title": "MicroPython: Clear Logs"
       }
     ]
   },

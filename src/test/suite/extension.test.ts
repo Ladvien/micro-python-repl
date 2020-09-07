@@ -27,7 +27,7 @@ const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_pyth
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
 suite('Extension Test Suite', async () => {
-
+	
 	let serialDevice: ISerialDevice = new ISerialDevice(test_port, test_baud);
 	// let microPyTerm = new MicroPythonREPL(serialDevice, logPath);
 	
@@ -373,6 +373,34 @@ suite('Extension Test Suite', async () => {
 		});
 	});
 
+	test('No saved port and baud cause error message to show.', () => {
+		describe(`Create MicroPython terminal without setting baud or serial.`, () => {
+			it('Ensure error message shows.', (done) => {
+
+
+				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+					microREPL.clearLog();
+					await microREPL.reset();
+					await delay(2500); // Wait for REPL to load.
+					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					assert.equal(`>>> `, logLines[logLines.length - 1]);
+
+					closeMicroREPL(microREPL).then(async () => {
+						assert.equal(microREPL.upyTerminal, undefined);
+						done();
+					}).catch((err) => {
+						fail(err);
+					});
+	
+				}).catch((err) => {
+					fail(err);
+				});
+				
+
+			});
+		});
+	});
+
 	// // // TODO: Finish tests.
 	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
 
@@ -407,5 +435,7 @@ suite('Extension Test Suite', async () => {
 			});
 		});
 	});
+
+
 
 });
