@@ -8,7 +8,7 @@ import * as fs from 'fs';
 
 import { Terminal } from 'vscode';
 import SerialPort = require('serialport');
-import { createMicroREPL, closeMicroREPL, appContext } from '../../extension';
+import { createMicroREPL, closeMicroREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';

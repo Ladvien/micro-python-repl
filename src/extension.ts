@@ -23,19 +23,15 @@ import { delay, selectMicroPythonTerm } from './util';
 
 let microREPL: MicroPythonREPL | undefined;
 let upyTerminal: MicroPythonTerminal | undefined;
-export let appContext: vscode.ExtensionContext;
 
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
 
-	let port = <string>context.workspaceState.get(PORT_PATH_KEY);
-	let baud = <number>context.workspaceState.get(BAUD_RATE_KEY);
-	
 	// TODO: Create a unit test to clear that file and test
 	//       creating a terminal triggers checkIfSerialDeviceExists.
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', async () => {
-		let serialDevice = await checkIfSerialDeviceExists(context, port, baud);
+		let serialDevice = await checkIfSerialDeviceExists(context);
 		createMicroREPL(serialDevice).then((result) => {
 			console.log(result);
 		}).catch((err) => {
@@ -46,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
 		selectMicroPythonTerm(vscode.window.terminals).then(async (terminal) => {
 			if(undefined !== terminal) {
-				let serialDevice = await checkIfSerialDeviceExists(context, port, baud);
+				let serialDevice = await checkIfSerialDeviceExists(context);
 				await createMicroREPL(serialDevice);
 			}
 			if (undefined !== window.activeTextEditor?.document) {
@@ -95,8 +91,10 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);
 }
 
-export function checkIfSerialDeviceExists(context: vscode.ExtensionContext, port: string, baud: number): Promise<ISerialDevice> {
+export function checkIfSerialDeviceExists(context: vscode.ExtensionContext): Promise<ISerialDevice> {
 	return new Promise((resolve, reject) => {
+		let port = <string>context.workspaceState.get(PORT_PATH_KEY);
+		let baud = <number>context.workspaceState.get(BAUD_RATE_KEY);	
 		if(port !== undefined && baud !== undefined) {
 			resolve(new ISerialDevice(port, baud));
 	   	} else {

@@ -1,16 +1,13 @@
 # micro-python-terminal README
 
-This is the README for your extension "micro-python-terminal". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+A robust MicroPython terminal for Visual Studio Code.  Unlike other VSCode extensions for interacting with MicroPython devices, this terminal focuses on an interactive REPL.  And most importantly, no middleware are required to connect the text VSCode editor to the MicroPython REPL.
 
-For example if there is an image subfolder under your extension project workspace:
+* Send code directly to MicroPython REPL from VSCode editor
 
-\!\[feature X\]\(images/feature-x.png\)
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
 
 ## Requirements
 
