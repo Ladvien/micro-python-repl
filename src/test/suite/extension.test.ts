@@ -8,7 +8,7 @@ import * as fs from 'fs';
 
 import { Terminal } from 'vscode';
 import SerialPort = require('serialport');
-import { createMicroREPL, closeMicroREPL } from '../../extension';
+import { createMicroREPL, closeMicroREPL, appContext } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
@@ -27,14 +27,14 @@ const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_pyth
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
 suite('Extension Test Suite', async () => {
-	
+
 	let serialDevice: ISerialDevice = new ISerialDevice(test_port, test_baud);
-	// let microPyTerm = new MicroPythonREPL(serialDevice, logPath);
 	
 	vscode.window.showInformationMessage('Start all tests.');
 
 	test('REPLParser.count getNumberOfSpacesAtStart returns correct number of spaces at beginning of the line.', async () => {
 		describe('getNumberOfSpacesAtStart()', function () {
+
 			var tests = [
 				{args: '  Hello there my friends.', expected: 2},
 				{args: '   Hello there my enemies.', expected: 3},
@@ -327,9 +327,7 @@ suite('Extension Test Suite', async () => {
 
 			it('Sets serialConnection to true.', (done) => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
-					let lastLine = logLines[logLines.length - 1];
-					assert.equal(lastLine, '>>> ');
+					assert.equal(microREPL.serialConnection.connected, true);
 					if(microREPL.upyTerminal){
 						closeMicroREPL(microREPL).then(async () => {
 							assert.equal(microREPL.upyTerminal, undefined);
@@ -355,6 +353,7 @@ suite('Extension Test Suite', async () => {
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					microREPL.clearLog();
 					assert.equal(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
@@ -383,6 +382,7 @@ suite('Extension Test Suite', async () => {
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					microREPL.clearLog();
 					assert.equal(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
@@ -421,6 +421,7 @@ suite('Extension Test Suite', async () => {
 					let lastLine = logLines[logLines.length - 1];
 					assert.equal('500xd', secondToLastLine);
 					assert.equal(`>>> `, lastLine);
+					microREPL.clearLog();
 
 					closeMicroREPL(microREPL).then(async () => {
 						assert.equal(microREPL.upyTerminal, undefined);

@@ -23,17 +23,16 @@ import { delay, selectMicroPythonTerm } from './util';
 
 let microREPL: MicroPythonREPL | undefined;
 let upyTerminal: MicroPythonTerminal | undefined;
-let emitter: typeof vscode.EventEmitter;
+export let appContext: vscode.ExtensionContext;
 
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
-	
+
 	let port = <string>context.workspaceState.get(PORT_PATH_KEY);
 	let baud = <number>context.workspaceState.get(BAUD_RATE_KEY);
 	
 	// TODO: Create a unit test to clear that file and test
 	//       creating a terminal triggers checkIfSerialDeviceExists.
-	console.log(context.storagePath);
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', async () => {
 		let serialDevice = await checkIfSerialDeviceExists(context, port, baud);
