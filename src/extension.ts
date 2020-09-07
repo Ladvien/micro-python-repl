@@ -108,20 +108,24 @@ export function selectDevice(context: vscode.ExtensionContext) {
 	});
 }
 
-export function createMicroREPL(serialDevice: ISerialDevice): Promise<MicroPythonREPL> {
+export function createMicroREPL(serialDevice: ISerialDevice, logPath: string = ""): Promise<MicroPythonREPL> {
 	return new Promise(async (resolve, reject) => {
 		vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		if(upyTerminal === undefined) {
 			upyTerminal = new MicroPythonTerminal();
 			upyTerminal.terminal.show();
 			await delay(300);
+		} else {
+			upyTerminal.terminal.show();
+			upyTerminal.terminalShowing = true;
 		}
 		if(microREPL === undefined) {
-			microREPL = new MicroPythonREPL(upyTerminal, serialDevice);
+			microREPL = new MicroPythonREPL(upyTerminal, serialDevice, logPath);
 		}
 		microREPL.openSerialConnection();
 		microREPL.waitForReady().then(async (result) => {
-			if(microREPL !== undefined) {
+			if(microREPL !== undefined && upyTerminal !== undefined) {
+				upyTerminal.terminalShowing;
 				vscode.window.setStatusBarMessage(`Opened ${microREPL.serialDevice.port} at ${microREPL.serialDevice.baud}`);
 				resolve(microREPL);
 			}
@@ -131,34 +135,25 @@ export function createMicroREPL(serialDevice: ISerialDevice): Promise<MicroPytho
 	});
 }
 
-export async function closeMicroPyREPL(microPyTerm: MicroPythonREPL): Promise<void> {
-	return new Promise((resolve, reject) => {
-		microPyTerm.close().then(async () => {
-			await delay(1500);
-			resolve();
-		}).catch((err: any) => {
-			reject(err);
-		});
-	});
-}
-
-export async function closeTerm(terminal: any, microPyTerm: any) {
+export async function closeMicroREPL(microPyTerm: MicroPythonREPL) {
 	return new Promise(async (resolve, reject) => {
-		terminal.dispose();
-		if(terminal.name === "MicroPython") {
-			terminal = undefined;
-			if(microPyTerm !== undefined) {
-				closeMicroPyREPL(microPyTerm).then(() => {
-					microPyTerm = undefined;
-					resolve();
-				}).catch((err) => {
-					reject(err);
-				});
-			} else {
-				resolve();
+		var terminal = <Terminal>microPyTerm.upyTerminal?.terminal;
+		if(terminal !== undefined) {
+			terminal.dispose();
+			if(terminal.name === "MicroPython") {
+				microPyTerm.upyTerminal = undefined;
 			}
+			await delay(300);
 		}
-		await delay(300);
+		if(microPyTerm !== undefined) {
+			microPyTerm.close().then(() => {
+				resolve();
+			}).catch((err) => {
+				reject(err);
+			});
+		} else {
+			resolve();
+		}
 	});
 }
 
