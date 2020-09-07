@@ -3,7 +3,7 @@
 
 ## Features
 
-A robust MicroPython terminal for Visual Studio Code.  Unlike other VSCode extensions for interacting with MicroPython devices, this terminal focuses on an interactive REPL.  And most importantly, no middleware are required to connect the text VSCode editor to the MicroPython REPL.
+A robust MicroPython terminal for Visual Studio Code.  Unlike other VSCode extensions for interacting with MicroPython devices, this terminal focuses on an interactive REPL and ease of use.  And most importantly, no middleware are required to connect the text VSCode editor to the MicroPython REPL.
 
 * Send code directly to MicroPython REPL from VSCode editor
 ![send-code-to-micro-repl](examples/micro-python-terminal-example.gif)
