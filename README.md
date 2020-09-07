@@ -13,7 +13,7 @@ A robust MicroPython terminal for Visual Studio Code.  Unlike other VSCode exten
 ![micro-python-device-selector](examples/micro-python-terminal-device-selector.gif)
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+None
 
 ## Extension Settings
 
