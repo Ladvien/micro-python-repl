@@ -17,10 +17,8 @@ import { delay, selectMicroPythonTerm } from '../../util';
 import { fail } from 'assert';
 const mlog = require('mocha-logger');
 
-// TODO: Add test to check MicroPython terminal not created
-//		 until the extension is loaded.
-// TODO: Check the serial port was freed on deactivate().
-// TODO: Check MicroPython terminal can be created, destroyed,
+// DONE: Check the serial port was freed on deactivate().
+// DONE: Check MicroPython terminal can be created, destroyed,
 //		 and recreated.
 
 const test_port = '/dev/ttyUSB0';
@@ -252,6 +250,7 @@ suite('Extension Test Suite', async () => {
 					assert.equal(microREPL.upyTerminal?.terminal.name, 'MicroPython');
 					assert.equal(microREPL.isMicroREPLReady(), true);
 					if(microREPL.upyTerminal !== undefined) {
+						// Shutdown
 						closeMicroREPL(microREPL).then(async () => {
 							assert.equal(microREPL.upyTerminal, undefined);
 							assert.equal(microREPL.serialConnection.connected, false);
@@ -263,6 +262,7 @@ suite('Extension Test Suite', async () => {
 								assert.equal(microREPL.upyTerminal?.terminal.name, 'MicroPython');
 								assert.equal(microREPL.isMicroREPLReady(), true);
 								if(microREPL.upyTerminal !== undefined) {
+									// Second shutdown
 									closeMicroREPL(microREPL).then(async () => {
 										assert.equal(microREPL.upyTerminal, undefined);
 										assert.equal(microREPL.serialConnection.connected, false);

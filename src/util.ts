@@ -26,15 +26,3 @@ export function selectMicroPythonTerm(terminals: readonly Terminal[]): Promise<T
         }
     });
 }
-
-export function checkIfMicroPyTermExists(terminals: readonly Terminal[]): boolean {
-    return undefined !== selectMicroPythonTerm(terminals);
-}
-
-export function ensureTerminalExists(): boolean {
-    if ((<any>window).terminals.length === 0) {
-        window.showErrorMessage('No active terminals');
-        return false;
-    }
-    return true;
-}

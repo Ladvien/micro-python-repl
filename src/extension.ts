@@ -5,20 +5,20 @@ import { window, Range } from 'vscode';
 import { ISerialDevice } from './SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
-import { delay, selectMicroPythonTerm, ensureTerminalExists } from './util';
+import { delay, selectMicroPythonTerm } from './util';
 
 // DONE: If "Send Text" opens the terminal, add wait to ensure
 //		 no text is loss to warming up.
 // DONE: Handle sending empty text to terminal.
+// DONE: Test disconnect, reconnect.
+// DONE: sendSelectedText doesn't time out.  Add a maximum
+//       number of retries before discard text and throwing error.
 
 
 // TODO: Write README
-// TODO: Test disconnect, reconnect.
 // TODO: Test connect with no device.
 // TODO: Test Windows and MacOS
 // TODO: Test changing port and baud after opening terminal.
-// TODO: sendSelectedText doesn't time out.  Add a maximum
-//       number of retries before discard text and throwing error.
 
 
 let serialDevice: ISerialDevice;
@@ -126,7 +126,7 @@ export function createMicroREPL(serialDevice: ISerialDevice, logPath: string = "
 		microREPL.waitForReady().then(async (result) => {
 			if(microREPL !== undefined && upyTerminal !== undefined) {
 				upyTerminal.terminalShowing;
-				vscode.window.setStatusBarMessage(`Opened ${microREPL.serialDevice.port} at ${microREPL.serialDevice.baud}`);
+				vscode.window.setStatusBarMessage(`Opened MicroREPL on ${microREPL.serialDevice.port} at ${microREPL.serialDevice.baud}`);
 				resolve(microREPL);
 			}
 		}).catch((err) => {

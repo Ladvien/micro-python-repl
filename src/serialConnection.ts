@@ -60,9 +60,9 @@ export class SerialConnection {
 	reset(): Promise<boolean> {
 		return new Promise(async (resolve, reject) => {
 			this.port.set( {dtr: false });
-			await delay(600);
+			await delay(200);
 			this.port.set( {dtr: true });
-			await delay(100);
+			await delay(1700);
 			resolve(true);
 		});
 	}

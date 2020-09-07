@@ -65,7 +65,7 @@ export class MicroPythonREPL {
 
     async close() {
         return new Promise((resolve, reject) => {
-            vscode.window.showInformationMessage('MicroPy Term closed.');
+            vscode.window.setStatusBarMessage(`MicroREPL closed at ${this.serialDevice.port}`);
             this.replReady = false;
             this.serialConnection.close().then((closedDevPath) => {
                 resolve(closedDevPath);
@@ -126,12 +126,6 @@ export class MicroPythonREPL {
     private async writeToDevice(chunk: string) {
         if(this.logPath !== ''){ this.log(chunk); }
         this.serialConnection.write(<string>chunk);
-    }
-
-    private sendSystemMessageToDisplay(line: string) {
-        if(this.upyTerminal){
-            this.upyTerminal.sendToTerminal(line);
-        }
     }
 
     private sendToDisplay(line: string) {
@@ -198,7 +192,7 @@ export class MicroPythonREPL {
     }
 
     private welcomeMessage() {
-        const message = 'Welcome to MicroPython Terminal for VSCode.';
+        const message = termCon.WELCOME_MESSAGE;
         if(this.upyTerminal) {
             this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.PURPLE}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
         }

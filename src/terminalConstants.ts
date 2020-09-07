@@ -1,6 +1,6 @@
-export const DELAY_BETWEEN_EXEC     = 60;
-        
+export const DELAY_BETWEEN_EXEC     = 60;        
 export const DELAY_BEFORE_WELCOME   = 1200;
+export const WELCOME_MESSAGE        = 'Welcome to MicroPython Terminal for VSCode.\nWritten by C. Thomas Brittain'; 
 
 export const TERM_COLUMNS           = 120;
 export const TERM_ROWS              = 20;
@@ -22,8 +22,6 @@ export const BACKSPACE_CLEAR        = `${BACKSPACE} ${BACKSPACE}`;
 export const REDUCE_INDENT          = BACKSPACE; 
 export const EXEC                   = '\r\n';
 
-
 export const RED                    = `${ESC}[31m`;
 export const PURPLE                 = `${ESC}[38;5;128m`;
 export const RESET_COLOR            = `${ESC}[39;49m`;
-// export const RESET_COLOR            = `${ESC}[0m`;
