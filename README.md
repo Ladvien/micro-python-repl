@@ -6,8 +6,10 @@
 A robust MicroPython terminal for Visual Studio Code.  Unlike other VSCode extensions for interacting with MicroPython devices, this terminal focuses on an interactive REPL.  And most importantly, no middleware are required to connect the text VSCode editor to the MicroPython REPL.
 
 * Send code directly to MicroPython REPL from VSCode editor
-
-
+![send-code-to-micro-repl](examples/micro-python-terminal-example.gif)
+* Real feedback loop.  Code will not execute until REPL is ready.
+![wait-until-micro-python-repl-is-ready](examples/micro-python-terminal-feedback-loop.gif)
+* Easy to use device selector.
 
 ## Requirements
 
