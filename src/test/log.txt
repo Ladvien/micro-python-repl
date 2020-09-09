@@ -396,4 +396,525 @@ Type "help()" for more information.0x0d
 hello0x0d 
 >>> fun_func()0x0d 
 fun0x0d 
+>>> ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (574) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (593) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (599) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (624) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (649) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1cb4, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (818) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (828) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (858) wifi:wifi firmware version: aa5336b0x0d 
+I (858) wifi:config NVS flash: enabled0x0d 
+I (858) wifi:config nano formating: disabled0x0d 
+I (858) wifi:Init dynamic tx buffer num: 320x0d 
+I (858) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management short buffer num: 320x0d 
+I (878) wifi:Init static rx buffer size: 16000x0d 
+I (878) wifi:Init static rx buffer num: 100x0d 
+I (878) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;33mW (888) phy_init: failed to load RF calibration data (0x1102), falling back to full calibration0x1b [0m0x0d 
+ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (649) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1dfc, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (818) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (828) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (858) wifi:wifi firmware version: aa5336b0x0d 
+I (858) wifi:config NVS flash: enabled0x0d 
+I (858) wifi:config nano formating: disabled0x0d 
+I (858) wifi:Init dynamic tx buffer num: 320x0d 
+I (858) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management short buffer num: 320x0d 
+I (878) wifi:Init static rx buffer size: 16000x0d 
+I (878) wifi:Init static rx buffer num: 100x0d 
+I (878) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;32mI (988) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 00x1b [0m0x0d 
+I (988) wifi:mode : sta (24:0a:c4:30:c9:d0)0x0d 
+0x1b [0;32mI (988) wifi: STA_START0x1b [0m0x0d 
+0x1b [0;32mI (3038) network: event 10x1b [0m0x0d 
+MicroPython v1.13 on 2020-09-02; ESP32 module with ESP320x0d 
+Type "help()" for more information.0x0d 
+>>> I (4418) wifi:new:<11,2>, old:<1,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1dfc, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (818) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (828) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (858) wifi:wifi firmware version: aa5336b0x0d 
+I (858) wifi:config NVS flash: enabled0x0d 
+I (858) wifi:config nano formating: disabled0x0d 
+I (858) wifi:Init dynamic tx buffer num: 320x0d 
+I (858) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management short buffer num: 320x0d 
+I (878) wifi:Init static rx buffer size: 16000x0d 
+I (878) wifi:Init static rx buffer num: 100x0d 
+I (878) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;32mI (988) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 00x1b [0m0x0d 
+I (988) wifi:mode : sta (24:0a:c4:30:c9:d0)0x0d 
+0x1b [0;32mI (988) wifi: STA_START0x1b [0m0x0d 
+0x1b [0;32mI (3038) network: event 10x1b [0m0x0d 
+MicroPython v1.13 on 2020-09-02; ESP32 module with ESP320x0d 
+Type "help()" for more information.0x0d 
+>>> I (4418) wifi:new:<11,2>, old:<1,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (548) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (604) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (629) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1dfc, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (817) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (827) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (857) wifi:wifi firmware version: aa5336b0x0d 
+I (857) wifi:config NVS flash: enabled0x0d 
+I (857) wifi:config nano formating: disabled0x0d 
+I (857) wifi:Init dynamic tx buffer num: 320x0d 
+I (857) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (867) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (867) wifi:Init management short buffer num: 320x0d 
+I (877) wifi:Init static rx buffer size: 16000x0d 
+I (877) wifi:Init static rx buffer num: 100x0d 
+I (877) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;32mI (987) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 00x1b [0m0x0d 
+I (987) wifi:mode : sta (24:0a:c4:30:c9:d0)0x0d 
+0x1b [0;32mI (987) wifi: STA_START0x1b [0m0x0d 
+0x1b [0;32mI (3037) network: event 10x1b [0m0x0d 
+MicroPython v1.13 on 2020-09-02; ESP32 module with ESP320x0d 
+Type "help()" for more information.0x0d 
+>>> import utime0x0d 
+>>> utime.sleep(5)0x0d 
+I (4417) wifi:new:<11,2>, old:<1,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (5267) wifi:state: init -> auth (b0)0x0d 
+I (5267) wifi:state: auth -> assoc (0)0x0d 
+I (5277) wifi:state: assoc -> run (10)0x0d 
+I (5287) wifi:state: run -> init (ea0)0x0d 
+I (5287) wifi:new:<11,0>, old:<11,2>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (5287) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+0x1b [0;32mI (5287) wifi: STA_DISCONNECTED, reason:150x1b [0m0x0d 
+0x1b [0;32mI (7347) wifi: STA_DISCONNECTED, reason:2050x1b [0m0x0d 
+I (7467) wifi:new:<11,2>, old:<11,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (7467) wifi:state: init -> auth (b0)0x0d 
+I (7477) wifi:state: auth -> assoc (0)0x0d 
+I (7477) wifi:state: assoc -> run (10)0x0d 
+I (7497) wifi:state: run -> init (ea0)0x0d 
+I (7497) wifi:new:<11,0>, old:<11,2>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (7497) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+0x1b [0;32mI (7497) wifi: STA_DISCONNECTED, reason:150x1b [0m0x0d 
+>>> print('1')0x0d 
+10x0d 
+>>> print('2')0x0d 
+20x0d 
+>>> print('3')0x0d 
+30x0d 
+>>> print('4')0x0d 
+40x0d 
+>>> print('5')0x0d 
+50x0d 
+>>> print('6')0x0d 
+60x0d 
+>>> print('7')0x0d 
+70x0d 
+>>> print('8')0x0d 
+80x0d 
+>>> print('10')0x0d 
+100x0d 
+>>> print('11')0x0d 
+110x0d 
+>>> print('12')0x0d 
+120x0d 
+>>> print('13')0x0d 
+130x0d 
+>>> print('14')0x0d 
+140x0d 
+>>> print('15')0x0d 
+150x0d 
+>>> print('16')0x0d 
+160x0d 
+>>> print('17')0x0d 
+170x0d 
+>>> print('18')0x0d 
+180x0d 
+>>> print('19')0x0d 
+190x0d 
+>>> print('20')0x0d 
+200x0d 
+>>> print('21')0x0d 
+210x0d 
+>>> print('22')0x0d 
+220x0d 
+>>> print('23')0x0d 
+230x0d 
+>>> print('24')0x0d 
+240x0d 
+>>> print('25')0x0d 
+250x0d 
+>>> print('26')0x0d 
+260x0d 
+>>> print('27')0x0d 
+270x0d 
+>>> print('28')0x0d 
+280x0d 
+>>> print('29')0x0d 
+290x0d 
+>>> print('30')0x0d 
+300x0d 
+>>> print('31')0x0d 
+310x0d 
+>>> print('32')0x0d 
+320x0d 
+>>> print('33')0x0d 
+330x0d 
+>>> print('34')0x0d 
+340x0d 
+>>> print('35')0x0d 
+350x0d 
+>>> print('36')0x0d 
+360x0d 
+>>> print('37')0x0d 
+370x0d 
+>>> print('38')0x0d 
+380x0d 
+>>> print('39')0x0d 
+390x0d 
+>>> print('40')0x0d 
+400x0d 
+>>> print('41')0x0d 
+410x0d 
+>>> 0x1b [0;32mI (9557) wifi: STA_DISCONNECTED, reason:2050x1b [0m0x0d 
+print('42')0x0d 
+420x0d 
+>>> print('43')0x0d 
+430x0d 
+>>> print('44')0x0d 
+440x0d 
+>>> print('45')0x0d 
+450x0d 
+>>> I (9677) wifi:new:<11,2>, old:<11,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (9677) wifi:state: init -> auth (b0)0x0d 
+I (9687) wifi:state: auth -> assoc (0)0x0d 
+I (9687) wifi:state: assoc -> run (10)0x0d 
+print('46')0x0d 
+460x0d 
+>>> I (9707) wifi:state: run -> init (ea0)0x0d 
+I (9707) wifi:new:<11,0>, old:<11,2>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+I (9707) wifi:new:<11,0>, old:<11,0>, ap:<255,255>, sta:<11,2>, prof:10x0d 
+0x1b [0;32mI (9707) wifi: STA_DISCONNECTED, reason:150x1b [0m0x0d 
+print('47')0x0d 
+470x0d 
+>>> print('48')0x0d 
+480x0d 
+>>> print('49')0x0d 
+490x0d 
+>>> print('50')0x0d 
+500x0d 
+>>> ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (605) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1dfc, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (818) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (828) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (858) wifi:wifi firmware version: aa5336b0x0d 
+I (858) wifi:config NVS flash: enabled0x0d 
+I (858) wifi:config nano formating: disabled0x0d 
+I (858) wifi:Init dynamic tx buffer num: 320x0d 
+I (858) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management short buffer num: 320x0d 
+I (878) wifi:Init static rx buffer size: 16000x0d 
+I (878) wifi:Init static rx buffer num: 100x0d 
+I (878) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;32mI (988) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 00x1b [0m0x0d 
+I (988) wifi:mode : sta (24:0a:c4:30:c9:d0)0x0d 
+0x1b [0;32mI (988) wifi: STA_START0x1b [0m0x0d 
+0x1b [0;32mI (3038) network: event 10x1b [0m0x0d 
+MicroPython v1.13 on 2020-09-02; ESP32 module with ESP320x0d 
+Type "help()" for more information.0x0d 
+>>> test_var = 00x0d 
+>>> try:0x0d 
+...     test_var = 1+10x0d 
+...     0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d 
+...     test_var = '3+3'0x0d 
+...     0x08 0x08 0x08 0x08 0x1b [K0x0d 
+>>> ets Jun  8 2016 00:22:570x0d 
+0x0d 
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)0x0d 
+configsip: 0, SPIWP:0xee0x0d 
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x000x0d 
+mode:DIO, clock div:20x0d 
+load:0x3fff0018,len:40x0d 
+load:0x3fff001c,len:51480x0d 
+load:0x40078000,len:128800x0d 
+load:0x40080400,len:34840x0d 
+entry 0x400806300x0d 
+0x1b [0;32mI (549) cpu_start: Pro cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Application information:0x1b [0m0x0d 
+0x1b [0;32mI (549) cpu_start: Compile time:     Sep  2 2020 03:04:090x1b [0m0x0d 
+0x1b [0;32mI (552) cpu_start: ELF file SHA256:  0000000000000000...0x1b [0m0x0d 
+0x1b [0;32mI (558) cpu_start: ESP-IDF:          v4.0.10x1b [0m0x0d 
+0x1b [0;32mI (563) cpu_start: Starting app cpu, entry point is 0x400828300x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: App cpu up.0x1b [0m0x0d 
+0x1b [0;32mI (573) heap_init: Initializing. RAM available for dynamic allocation:0x1b [0m0x0d 
+0x1b [0;32mI (580) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (586) heap_init: At 3FFB6388 len 00001C78 (7 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (592) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (598) heap_init: At 3FFBDB5C len 00000004 (0 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (604) heap_init: At 3FFCAD78 len 00015288 (84 KiB): DRAM0x1b [0m0x0d 
+0x1b [0;32mI (611) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (617) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM0x1b [0m0x0d 
+0x1b [0;32mI (623) heap_init: At 4009E9D8 len 00001628 (5 KiB): IRAM0x1b [0m0x0d 
+0x1b [0;32mI (630) cpu_start: Pro cpu start user code0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: detected chip: generic0x1b [0m0x0d 
+0x1b [0;32mI (648) spi_flash: flash io: dio0x1b [0m0x0d 
+0x1b [0;32mI (649) cpu_start: Starting scheduler on PRO CPU.0x1b [0m0x0d 
+0x1b [0;32mI (0) cpu_start: Starting scheduler on APP CPU.0x1b [0m0x0d 
+I (80) wifi:wifi driver task: 3ffd1dfc, prio:23, stack:6656, core=00x0d 
+0x1b [0;32mI (818) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+0x1b [0;32mI (828) system_api: Base MAC address is not set, read default base MAC address from BLK0 of EFUSE0x1b [0m0x0d 
+I (858) wifi:wifi firmware version: aa5336b0x0d 
+I (858) wifi:config NVS flash: enabled0x0d 
+I (858) wifi:config nano formating: disabled0x0d 
+I (858) wifi:Init dynamic tx buffer num: 320x0d 
+I (858) wifi:Init data frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management frame dynamic rx buffer num: 320x0d 
+I (868) wifi:Init management short buffer num: 320x0d 
+I (878) wifi:Init static rx buffer size: 16000x0d 
+I (878) wifi:Init static rx buffer num: 100x0d 
+I (878) wifi:Init dynamic rx buffer num: 320x0d 
+0x1b [0;32mI (988) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 00x1b [0m0x0d 
+I (988) wifi:mode : sta (24:0a:c4:30:c9:d0)0x0d 
+0x1b [0;32mI (988) wifi: STA_START0x1b [0m0x0d 
+0x1b [0;32mI (3038) network: event 10x1b [0m0x0d 
+MicroPython v1.13 on 2020-09-02; ESP32 module with ESP320x0d 
+Type "help()" for more information.0x0d 
+>>> test_var = 00x0d 
+>>> try:0x0d 
+...     test_var = 1+10x0d 
+...     try:0x0d 
+...         def fun_func():0x0d 
+...             print('fun')0x0d 
+...             0x08 0x08 0x08 0x08 0x1b [K0x0d 
+...         1/00x0d 
+...         0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d 
+...         try:0x0d 
+...             1/00x0d 
+...             0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d 
+...             try:0x0d 
+...                 1/00x0d 
+...                 0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d 
+...                 print('hello')0x0d 
+...                 0x08 0x08 0x08 0x08 0x1b [K0x08 0x08 0x08 0x08 0x1b [K0x08 0x08 0x08 0x08 0x1b [K0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d 
+...     test_var = '3+3'0x0d 
+...     0x08 0x08 0x08 0x08 0x1b [K0x0d 
+hello0x0d 
+>>> fun_func()0x0d 
+fun0x0d 
 >>> 

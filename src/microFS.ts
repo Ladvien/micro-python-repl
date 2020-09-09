@@ -3,8 +3,9 @@ import { MicroPythonREPL } from './microPythonREPL';
 import * as termCon from './terminalConstants';
 
 export function writeBoot(microREPL: MicroPythonREPL, ssid: string, password: string): Promise<boolean> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
+        microREPL.showUser = false;
 
         const wifiOnBoot = `import network\n` +
                              `sta_if = network.WLAN(network.STA_IF)\n` +
@@ -14,10 +15,13 @@ export function writeBoot(microREPL: MicroPythonREPL, ssid: string, password: st
                              `sta_if.isconnected()`;
 
         const fileWriteCMD = createFileWriteCodeFromText(wifiOnBoot, 'boot.py');
-        console.log(fileWriteCMD);
-        microREPL.sendSelectedText(fileWriteCMD);
 
-        resolve(true);
+        microREPL.sendSelectedText(fileWriteCMD).then((result) => {
+            microREPL.showUser = true;            
+            resolve(true);
+        }).catch((err) => {
+            reject(err);
+        });
     });
 }
 
@@ -39,13 +43,10 @@ function createFileWriteCodeFromText(text: string, filename: string, path: strin
                     `except:\n` +
                     `    pass\n`;
 
+                    fileWriteCmd += `with open("${filePath}", "w") as f:` + '\n';
     for (let i = 0; i < rawLines.length; i++) {
         const line = rawLines[i];
-        if(i === 0) {
-            fileWriteCmd += `with open("${filePath}") as f:`;
-        } else {
-            fileWriteCmd += `    f.write("` + line + `")`; 
-        }
+        fileWriteCmd += `    f.write("` + line + `\\n")`; 
         fileWriteCmd += '\n';
     }
     return fileWriteCmd;

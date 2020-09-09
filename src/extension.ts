@@ -9,27 +9,9 @@ import { delay, selectMicroPythonTerm } from './util';
 import { writeBoot } from './microFS';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
-// DONE: If "Send Text" opens the terminal, add wait to ensure
-//		 no text is loss to warming up.
-// DONE: Handle sending empty text to terminal.
-// DONE: Test disconnect, reconnect.
-// DONE: sendSelectedText doesn't time out.  Add a maximum
-//       number of retries before discard text and throwing error.
-// DONE: Test in MacOS
-// DONE: Write README
-
-// TODO: Test connect with no device.
-// TODO: Test Windows
-// TODO: Test changing port and baud after opening terminal.
-// TODO: Create a unit test to clear that file and test
-//       creating a terminal triggers checkIfSerialDeviceExists.
-
-
 let microREPL: MicroPythonREPL | undefined;
 
-// https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
-
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', async () => {
 		if(microREPL === undefined) {
@@ -87,9 +69,9 @@ export function activate(context: vscode.ExtensionContext) {
 		createMicroREPL(serialDevice).then(() => {
 			if(microREPL !== undefined){
 				writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
-					console.log('here');
+
 				}).catch((err) => {
-					console.log(err);
+					microREPL.showUser = true;
 				});
 			}
 		}).catch((err) => {

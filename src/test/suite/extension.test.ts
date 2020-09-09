@@ -6,20 +6,12 @@ import { describe, before, it } from 'mocha';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 
-import { Terminal } from 'vscode';
-import SerialPort = require('serialport');
 import { createMicroREPL, closeMicroREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
 import { ISerialDevice } from '../../SerialDevice';
-import { MicroPythonREPL } from '../../microPythonREPL';
 import { delay, selectMicroPythonTerm } from '../../util';
 import { fail } from 'assert';
-const mlog = require('mocha-logger');
-
-// DONE: Check the serial port was freed on deactivate().
-// DONE: Check MicroPython terminal can be created, destroyed,
-//		 and recreated.
 
 const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
@@ -400,7 +392,6 @@ suite('Extension Test Suite', async () => {
 		});
 	});
 
-	// // // TODO: Finish tests.
 	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
 		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
 			// DO NOT REMOVE

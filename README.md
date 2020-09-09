@@ -23,6 +23,11 @@ This extension contributes the following settings:
 * `micro-python-terminal.selectDevice`: Lists all connected serial devices and sets the MicroPython device.
 * `micro-python-terminal.sendTextTermCommand`: Sends the selected text in the active text editor to the MicroPython REPL.
 
+## Scrum Board
+Work for this project is managed using Scrum and the board is public:
+
+* [MicroPython Terminal Scrum Board](https://trello.com/b/pUhIt08d/micropython-terminal)
+
 ## Known Issues
 
 None yet.
