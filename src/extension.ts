@@ -15,12 +15,14 @@ const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 // DONE: Test disconnect, reconnect.
 // DONE: sendSelectedText doesn't time out.  Add a maximum
 //       number of retries before discard text and throwing error.
+// DONE: Test in MacOS
+// DONE: Write README
 
-
-// TODO: Write README
 // TODO: Test connect with no device.
-// TODO: Test Windows and MacOS
+// TODO: Test Windows
 // TODO: Test changing port and baud after opening terminal.
+// TODO: Create a unit test to clear that file and test
+//       creating a terminal triggers checkIfSerialDeviceExists.
 
 
 let microREPL: MicroPythonREPL | undefined;
@@ -28,8 +30,6 @@ let microREPL: MicroPythonREPL | undefined;
 // https://vshaxe.github.io/vscode-extern/vscode/Pseudoterminal.html
 export function activate(context: vscode.ExtensionContext) {
 
-	// TODO: Create a unit test to clear that file and test
-	//       creating a terminal triggers checkIfSerialDeviceExists.
 
 	const microPyTermCommand = vscode.commands.registerCommand('micro-python-terminal.createTerm', async () => {
 		if(microREPL === undefined) {

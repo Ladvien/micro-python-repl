@@ -415,7 +415,7 @@ suite('Extension Test Suite', async () => {
 					let logLines = fs.readFileSync(logPath).toString().split('\n');
 					let secondToLastLine = logLines[logLines.length - 2];
 					let lastLine = logLines[logLines.length - 1];
-					assert.equal('500xd', secondToLastLine);
+					assert.equal('500x0d ', secondToLastLine);
 					assert.equal(`>>> `, lastLine);
 					microREPL.clearLog();
 
@@ -451,13 +451,59 @@ suite('Extension Test Suite', async () => {
 					// >>> 
 	
 					var tests = [
-						`>>> test_var = 00xd`,
-						`>>> try:0xd`,
-						`...     test_var = 1+10xd`,
-						`...     0x80x80x80x80x1b[Kexcept:0xd`,
-						`...     test_var = '3+3'0xd`,
-						`...     0x80x80x80x80x1b[K0xd`,
+						`>>> test_var = 00x0d `,
+						`>>> try:0x0d `,
+						`...     test_var = 1+10x0d `,
+						`...     0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d `,
+						`...     test_var = '3+3'0x0d `,
+						`...     0x08 0x08 0x08 0x08 0x1b [K0x0d `,
 						`>>> `
+					];
+					
+					microREPL.clearLog();
+					await microREPL.sendSelectedText(codeLines);
+	
+					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					
+					for (let i = 0; i < tests.length - 1; i++) {
+						const logLine = logLines[logLines.length - i];
+						const testLine = tests[tests.length - i];
+						assert.equal(testLine, logLine);
+					}
+					microREPL.clearLog();
+
+					closeMicroREPL(microREPL).then(async () => {
+						assert.equal(microREPL.upyTerminal, undefined);
+						done();
+					}).catch((err) => {
+						fail(err);
+					});
+				}).catch((err) => {
+					fail(err);
+				});
+			});
+			
+		});
+	});
+
+	test('REPLParser handles deep-try-except blocks', () => {
+		const file_name = 'deep_try_except.py';
+		describe(`REPLParser processes ${file_name}`, () => {
+			it(`complicated try-except block is executed correctly`, (done) => {
+				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+					let codeLines = fs.readFileSync(test_code_folder + file_name, 'utf8');
+					
+	
+					// 3: hello0x0d 
+					// 2: >>> fun_func()0x0d 
+					// 1: fun0x0d 
+					// 0: >>> 
+
+					var tests = [
+						'hello0x0d ', 
+						'>>> fun_func()0x0d ', 
+						'fun0x0d ', 
+						'>>> '
 					];
 					
 					microREPL.clearLog();
