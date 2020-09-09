@@ -32,6 +32,10 @@
       {
         "command": "micro-python-terminal.selectDevice",
         "title": "MicroPython: Select MicroPython USB device"
+      },
+      {
+        "command": "micro-python-terminal.setupWifi",
+        "title": "MicroPython: Setup WiFI"
       }
     ]
   },

@@ -31,16 +31,20 @@ export class MicroPythonREPL {
     upyTerminalEmitter: typeof EventEmitter;
 
     constructor(upyTerminal: MicroPythonTerminal, serialDevice: ISerialDevice, logPath: string = "") {
-        this.upyTerminal = upyTerminal;
         this.replReady = false;
         this.serialDevice = serialDevice;
         this.logPath = logPath;
         this.rxBuffer = '';
         this.upyTerminalEmitter = this.setupMicroPythonTerminalEmitter();
-        upyTerminal.eventEmitter = this.upyTerminalEmitter;
         this.serialConnectEmitter = this.setupSerialConnectionEmitter();
+        this.attachTerminal(upyTerminal);
         this.replParser = new REPLParser();
         this.serialConnection = new SerialConnection(serialDevice, this.serialConnectEmitter);
+    }
+
+    attachTerminal(upyTerminal: MicroPythonTerminal){
+        this.upyTerminal = upyTerminal;
+        upyTerminal.eventEmitter = this.upyTerminalEmitter;
     }
 
     isMicroREPLReady(){
@@ -104,7 +108,7 @@ export class MicroPythonREPL {
     }
 
     clearLog() {
-        fs.writeFileSync(<string>this.logPath, "");
+        this.log('');
     }
 
     private clearScreen() {
@@ -124,7 +128,7 @@ export class MicroPythonREPL {
     }
 
     private async writeToDevice(chunk: string) {
-        if(this.logPath !== ''){ this.log(chunk); }
+        // if(this.logPath !== ''){ this.log(chunk); }
         this.serialConnection.write(<string>chunk);
     }
 
@@ -216,6 +220,7 @@ export class MicroPythonREPL {
     }
 
     private async gotUserInput(text: String) {
+        // console.log(this.nonAsciiToHex(text));
         if(!this.serialConnection.connected && text === ' ') { 
             this.serialConnection.open(); 
             return;

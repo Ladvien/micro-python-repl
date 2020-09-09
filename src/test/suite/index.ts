@@ -9,7 +9,7 @@ export function run(): Promise<void> {
 		ui: 'tdd',
 		color: true,
 		bail: false,
-		timeout: 15000
+		timeout: 20000
 	});
 
 	const testsRoot = path.resolve(__dirname, '..');

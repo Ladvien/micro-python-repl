@@ -41,6 +41,10 @@ export class REPLParser {
         let neededBreaks = '';
         let nextLineIndents = 0;
 
+        if(lines[currentPos + 1] !== undefined && lines[currentPos + 1].includes('except:')) {
+            return termCon.EXEC + termCon.BACKSPACE;
+        }
+
         const currentIndentLevel = this.countLineIndents(lines[currentPos]);
         if(currentPos + 1 !== lines.length) { 
             nextLineIndents = this.countLineIndents(lines[currentPos + 1]);

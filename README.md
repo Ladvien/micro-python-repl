@@ -28,9 +28,7 @@ This extension contributes the following settings:
 None yet.
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
-### 0.0.1
+### 0.0.2
 * Send to REPL
 * Create MicroPython Terminal
 * Select MicroPython USB device

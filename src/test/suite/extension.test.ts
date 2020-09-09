@@ -191,7 +191,7 @@ suite('Extension Test Suite', async () => {
 
 	test('connectTerminalToREPL', () => {
 		describe('Creates a PseudoTerminal named "MicroPython"', () => {
-			it('Terminal exists', (done) => {
+			it('Terminal exists', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					const terminal = await selectMicroPythonTerm(vscode.window.terminals);
 					terminal.show();
@@ -213,7 +213,7 @@ suite('Extension Test Suite', async () => {
 					fail();
 				});
 			});
-			it('closeTerm() causes terminal to be disposed after short delay', (done) => {
+			it('closeTerm() causes terminal to be disposed after short delay', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					if(microREPL.upyTerminal){
 						closeMicroREPL(microREPL).then(async () => {
@@ -229,7 +229,7 @@ suite('Extension Test Suite', async () => {
 					fail(err);
 				});
 			});
-			it('closeTerm() causes SerialPort connection to be closed', (done) => {
+			it('closeTerm() causes SerialPort connection to be closed', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					assert.notEqual(microREPL.upyTerminal?.terminal, undefined);
 					if(microREPL.upyTerminal !== undefined) {
@@ -245,7 +245,7 @@ suite('Extension Test Suite', async () => {
 					fail(err);
 				});
 			});
-			it('Create new MicroPython terminal after deactivate()', (done) => {
+			it('Create new MicroPython terminal after deactivate()', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					assert.equal(microREPL.upyTerminal?.terminal.name, 'MicroPython');
 					assert.equal(microREPL.isMicroREPLReady(), true);
@@ -353,7 +353,6 @@ suite('Extension Test Suite', async () => {
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(logPath).toString().split('\n');
-					microREPL.clearLog();
 					assert.equal(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
@@ -403,15 +402,12 @@ suite('Extension Test Suite', async () => {
 
 	// // // TODO: Finish tests.
 	test('microPythonTerminal.sendSelectedText waits until MicroPython REPL is ready.', () => {
-
-		const file_name = 'wait_for_ready.py';
 		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
-
-			let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
-
 			// DO NOT REMOVE
 			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
+			const file_name = 'wait_for_ready.py';
 			it(`ensures the output from ${file_name} is print('50')0xd`, (done) => {
+				let lines = fs.readFileSync(test_code_folder + file_name, 'utf8');
 
 				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
 					microREPL.clearLog();
@@ -437,6 +433,58 @@ suite('Extension Test Suite', async () => {
 		});
 	});
 
+
+	test('REPLParser handles try-except blocks', () => {
+		const file_name = 'try_except.py';
+		describe(`REPLParser processes ${file_name}`, () => {
+			it(`try-except block is executed correctly`, (done) => {
+				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+					let codeLines = fs.readFileSync(test_code_folder + file_name, 'utf8');
+					
+	
+					// >>> test_var = 00xd
+					// >>> try:0xd
+					// ...     test_var = 1+10xd
+					// ...     0x80x80x80x80x1b[Kexcept:0xd
+					// ...     test_var = '3+3'0xd
+					// ...     0x80x80x80x80x1b[K0xd
+					// >>> 
+	
+					var tests = [
+						`>>> test_var = 00xd`,
+						`>>> try:0xd`,
+						`...     test_var = 1+10xd`,
+						`...     0x80x80x80x80x1b[Kexcept:0xd`,
+						`...     test_var = '3+3'0xd`,
+						`...     0x80x80x80x80x1b[K0xd`,
+						`>>> `
+					];
+					
+					microREPL.clearLog();
+					await microREPL.sendSelectedText(codeLines);
+	
+					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					
+					for (let i = 0; i < tests.length - 1; i++) {
+						const logLine = logLines[logLines.length - i];
+						const testLine = tests[tests.length - i];
+						assert.equal(testLine, logLine);
+					}
+					microREPL.clearLog();
+
+					closeMicroREPL(microREPL).then(async () => {
+						assert.equal(microREPL.upyTerminal, undefined);
+						done();
+					}).catch((err) => {
+						fail(err);
+					});
+				}).catch((err) => {
+					fail(err);
+				});
+			});
+			
+		});
+	});
 
 
 });
