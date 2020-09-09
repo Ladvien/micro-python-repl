@@ -61,7 +61,7 @@ export class SerialDeviceSelector {
 		return new Promise((resolve, reject) => {
 			this.selectPort().then((port) => {
 				this.selectBaud().then(async (baud) => {
-					resolve(new ISerialDevice(<string>port, <number>baud));
+					resolve(<ISerialDevice>{port: <string>port, baud: <number>baud});
 				}).catch(() => {
 					reject("Failed to select baud.");
 				});

@@ -1,9 +1,4 @@
-export class ISerialDevice {
+export interface ISerialDevice {
 	port: string;
 	baud: number;
-
-	constructor(port: string, baud: number) {
-		this.port = port;
-		this.baud = baud;
-	}
 }

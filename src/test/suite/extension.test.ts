@@ -20,7 +20,7 @@ const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 
 suite('Extension Test Suite', async () => {
 
-	let serialDevice: ISerialDevice = new ISerialDevice(test_port, test_baud);
+	let serialDevice: ISerialDevice = <ISerialDevice>{port: test_port, baud: test_baud};
 	
 	vscode.window.showInformationMessage('Start all tests.');
 

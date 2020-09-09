@@ -105,7 +105,7 @@ export function checkIfSerialDeviceExists(context: vscode.ExtensionContext): Pro
 		let port = <string>context.workspaceState.get(PORT_PATH_KEY);
 		let baud = <number>context.workspaceState.get(BAUD_RATE_KEY);	
 		if(port !== undefined && baud !== undefined) {
-			resolve(new ISerialDevice(port, baud));
+			resolve(<ISerialDevice>{port: port, baud: baud});
 	   	} else {
 		   selectDevice(context).then((serialDevice) => {
 			   resolve(serialDevice);
