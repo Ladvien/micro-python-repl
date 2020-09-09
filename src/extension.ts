@@ -85,7 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
 		let serialDevice = await checkIfSerialDeviceExists(context);
 		createMicroREPL(serialDevice).then(() => {
 			if(microREPL !== undefined){
-				writeBoot(microREPL, 'Wireless-N(2.4G)', 'hardwoodfloors911').then((result) => {
+				writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
 					console.log('here');
 				}).catch((err) => {
 					console.log(err);
