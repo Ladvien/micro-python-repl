@@ -6,7 +6,7 @@ import { ISerialDevice } from './SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay, selectMicroPythonTerm } from './util';
-import { writeBoot } from './microFS';
+import { writeBoot, getWifiSSIDInRange } from './deviceSystem';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
@@ -68,11 +68,21 @@ export function activate(context: vscode.ExtensionContext) {
 		let serialDevice = await checkIfSerialDeviceExists(context);
 		createMicroREPL(serialDevice).then(() => {
 			if(microREPL !== undefined){
-				writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
 
+				// Get list of WiFi.
+				getWifiSSIDInRange(microREPL).then((result) => {
+					
 				}).catch((err) => {
-					microREPL.showUser = true;
+					
 				});
+
+
+
+				// writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
+
+				// }).catch((err) => {
+
+				// });
 			}
 		}).catch((err) => {
 			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${err}`);

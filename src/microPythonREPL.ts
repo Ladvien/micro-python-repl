@@ -19,8 +19,10 @@ export class MicroPythonREPL {
     DELAY_FOR_READY_DURING_SEND_TEXT = 300;
 
     showUser: boolean = true;
+    captureOutput: boolean = false;
     replReady: boolean = false;
-    rxBuffer: String;
+    rxBuffer: String = '';
+    captureBuffer: String = '';
     logPath: String;
 
     replParser: REPLParser;
@@ -36,7 +38,7 @@ export class MicroPythonREPL {
     constructor(upyTerminal: MicroPythonTerminal, serialDevice: ISerialDevice, logPath: string = "") {
         this.serialDevice = serialDevice;
         this.logPath = logPath;
-        this.rxBuffer = '';
+
         this.upyTerminalEmitter = this.setupMicroPythonTerminalEmitter();
         this.serialConnectEmitter = this.setupSerialConnectionEmitter();
         this.attachTerminal(upyTerminal);
@@ -108,6 +110,7 @@ export class MicroPythonREPL {
             resolve();
         });
     }
+    
 
     clearLog() {
         this.log('');
@@ -126,6 +129,7 @@ export class MicroPythonREPL {
             this.replReady = true;
             this.rxBuffer = '';
         }
+        if(this.captureOutput){ this.captureBuffer += data.toString('utf8'); }
         if(this.showUser) { this.sendToDisplay(data.toString('utf8')); };
     }
 
