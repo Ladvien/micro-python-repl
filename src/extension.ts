@@ -8,6 +8,7 @@ import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDevi
 import { delay, selectMicroPythonTerm } from './util';
 import { writeBoot } from './microFS';
 
+const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 // DONE: If "Send Text" opens the terminal, add wait to ensure
 //		 no text is loss to warming up.
 // DONE: Handle sending empty text to terminal.
@@ -40,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 	const sendTextTermCommand = vscode.commands.registerCommand('micro-python-terminal.sendTextTermCommand', async () => {
 		if(microREPL === undefined) {
 			let serialDevice = await checkIfSerialDeviceExists(context);
-			await createMicroREPL(serialDevice);
+			await createMicroREPL(serialDevice, logPath);
 		}
 		if (undefined !== window.activeTextEditor?.document) {
 			const doc = window.activeTextEditor?.document;

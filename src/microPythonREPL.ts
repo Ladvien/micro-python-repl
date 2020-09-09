@@ -159,7 +159,9 @@ export class MicroPythonREPL {
             if (rawChar >= 32 && rawChar < 127 || rawChar === 10) {
                 parsedString += char;
             } else {
-                parsedString += '0x' + rawChar.toString(16);
+                let prefix = '0x';
+                if(rawChar < 17){ prefix = '0x0'; }
+                parsedString += prefix + rawChar.toString(16) + ' ';
             }
         }
         return parsedString;
