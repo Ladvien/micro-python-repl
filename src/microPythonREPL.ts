@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { delay } from './util';
 import { REPLParser } from './replParser';
 import { MicroPythonTerminal } from './microPythonTerminal';
-import { ISerialDevice } from './SerialDevice';
+import { ISerialDevice } from './interfaces/SerialDevice';
 import { SerialConnection } from './serialConnection';
 import * as termCon from './terminalConstants';
 import * as fs from 'fs';

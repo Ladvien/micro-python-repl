@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import { createMicroREPL, closeMicroREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
 import * as termCon from '../../terminalConstants';
-import { ISerialDevice } from '../../SerialDevice';
+import { ISerialDevice } from '../../interfaces/SerialDevice';
 import { delay, selectMicroPythonTerm } from '../../util';
 import { fail } from 'assert';
 
@@ -523,5 +523,16 @@ suite('Extension Test Suite', async () => {
 		});
 	});
 
+	// TODO: Test WiFi parsing
+
+	// I (1258) wifi:Init dynamic rx buffer num: 32
+	// >>> sta_if.active(True)
+	// I (1608) phy: phy_version: 4180, cb3948e, Sep 12 2019, 16:39:13, 0, 0
+	// I (1608) wifi:mode : sta (24:0a:c4:30:c9:d0)
+	// True
+	// I (1618) wifi: STA_START
+	// >>> sta_if.scan()
+	// I (3898) network: event 1
+	// [(b'SpectrumSetup-D8', b'D\xad\xb1Fp\xde', 6, -75, 3, False), (b'Wireless-N(2.4G)', b'\x0eAX\x11\xcd\xfa', 11, -80, 4, False), (b'martinez', b'\xa0c\x91({\xb3', 6, -92, 3, False), (b'NETGEAR81', b'@]\x82\xd5Hh', 11, -96, 3, False)]
 
 });

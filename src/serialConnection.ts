@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ISerialDevice } from './SerialDevice';
+import { ISerialDevice } from './interfaces/SerialDevice';
 import SerialPort = require('serialport');
 import { delay } from './util';
 

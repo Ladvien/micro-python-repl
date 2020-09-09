@@ -2,11 +2,11 @@ import { MicroPythonTerminal } from './microPythonTerminal';
 import * as vscode from 'vscode';
 import { Terminal } from 'vscode';
 import { window, Range } from 'vscode';
-import { ISerialDevice } from './SerialDevice';
+import { ISerialDevice } from './interfaces/SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay, selectMicroPythonTerm } from './util';
-import { writeBoot, getWifiSSIDInRange } from './deviceSystem';
+import { getWifiSSIDInRange } from './deviceSystem';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
@@ -70,8 +70,11 @@ export function activate(context: vscode.ExtensionContext) {
 			if(microREPL !== undefined){
 
 				// Get list of WiFi.
-				getWifiSSIDInRange(microREPL).then((result) => {
+				getWifiSSIDInRange(microREPL).then((ssids) => {
 					
+					// Have the user select a SSID.
+					
+
 				}).catch((err) => {
 					
 				});

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { ISerialDevice } from './SerialDevice';
+import { ISerialDevice } from './interfaces/SerialDevice';
 import { showQuickPick } from './util';
 import SerialPort = require('serialport');
 

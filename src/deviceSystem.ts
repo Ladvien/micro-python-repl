@@ -2,10 +2,10 @@ import { window, Terminal } from 'vscode';
 import { MicroPythonREPL } from './microPythonREPL';
 import * as termCon from './terminalConstants';
 import { delay } from './util';
+import { ISSID } from './interfaces/SSID';
 
 
-export function getWifiSSIDInRange(microREPL: MicroPythonREPL): Promise<Array<string>> {
-
+export function getWifiSSIDInRange(microREPL: MicroPythonREPL): Promise<Array<ISSID>> {
     return new Promise((resolve, reject) => {
         const wifiOnBoot =  `import network\n` +
                             `sta_if = network.WLAN(network.STA_IF)\n` +
@@ -13,45 +13,55 @@ export function getWifiSSIDInRange(microREPL: MicroPythonREPL): Promise<Array<st
                             `sta_if.scan()\n`;
     
         microREPL.captureOutput = true;
-        // microREPL.showUser = false;
+        microREPL.showUser = false;
         microREPL.sendSelectedText(wifiOnBoot).then(async (result) => {
             await delay(3000);
             let ssids = parseWifiScanResults(<string>microREPL.captureBuffer);
             microREPL.captureOutput = false;        
-            // microREPL.showUser = true;
-            console.log(ssids);
-            resolve();
+            microREPL.showUser = true;
+            resolve(ssids);
         }).catch((err) => {
             reject(err);
         });
     });
 }
 
-function parseWifiScanResults(text: string): Array<string> {
-    let result = [''];
+function parseWifiScanResults(text: string): Array<ISSID> {
+    let result: Array<ISSID> = [];
     try {
         const ssidsRaw = '(' + text.split('[(')[1].split(')]')[0] + ')';
         result = parseSSIDTuple(ssidsRaw);
     } catch {
-        result = ['Unable to find WiFI SSIDs in results.'];
+        const ssid: ISSID =  {
+            ssid: 'None',
+            bssid: '',
+            channel: -1,
+            rssi: -1,
+            hidden: -1
+        };
+        result = [ssid];
     }
-    // `I (3898) network: event 1\n` + 
-    // `[(b'SpectrumSetup-D8', b'D\xad\xb1Fp\xde', 6, -73, 3, False), (b'Wireless-N(2.4G)', b'\x0eAX\x11\xcd\xfa', 11, -79, 4, False), (b'ATTXW2QI22', b'\xd4\x04\xcd\xce\xd5\xe0', 11, -89, 3, False), (b'NETGEAR81', b'@]\x82\xd5Hh', 11, -95, 3, False)]\n` 
-    // + `>>>`;
 
     return result;
 }
 
-function parseSSIDTuple(text: string): Array<string> {
-    let result = [''];
+function parseSSIDTuple(text: string): Array<ISSID> {
+    let result: Array<ISSID> = [];
 
     let rawTupleStrings = text.split('),');
 
     for (let i = 0; i < rawTupleStrings.length; i++) {
         let tuple = rawTupleStrings[i];
         let tupleParts = tuple.split(',');
-        console.log(tupleParts);
-        result.push(tuple);
+        
+        const ssid: ISSID =  {
+            ssid: tupleParts[0].replace(/\(b'|'/gi, '').trim(),
+            bssid: tupleParts[1].replace(/\(b'|'/gi, '').trim(),
+            channel: parseInt(tupleParts[2]),
+            rssi: parseInt(tupleParts[3]),
+            hidden: parseInt(tupleParts[4])
+        };
+        result.push(ssid);
     }
 
     return result;
