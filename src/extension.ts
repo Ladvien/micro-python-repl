@@ -5,8 +5,9 @@ import { window, Range } from 'vscode';
 import { ISerialDevice } from './interfaces/SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
-import { delay, selectMicroPythonTerm } from './util';
-import { getWifiSSIDInRange } from './deviceSystem';
+import { delay, selectMicroPythonTerm, showQuickPick, getUserText } from './util';
+import { getWifiSSIDInRange, writeBoot } from './deviceSystem';
+import { resolve } from 'path';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
@@ -73,19 +74,22 @@ export function activate(context: vscode.ExtensionContext) {
 				getWifiSSIDInRange(microREPL).then((ssids) => {
 					
 					// Have the user select a SSID.
-					
-
+					showQuickPick(ssids.map(x =>  <string>x.ssid ), 'No WiFI devices found.').then(async (selectedSSID) => {
+						// Get password
+						const password = await getUserText('Enter WiFi passsword', true);
+						if(microREPL !== undefined){
+							writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
+								resolve();
+							}).catch((err) => {
+								vscode.window.showErrorMessage('Failed to write boot.py during WiFi selection.', err);
+							});
+						}
+					}).catch((err) => {
+						vscode.window.showErrorMessage('Failed to select WiFi device', err);
+					});
 				}).catch((err) => {
-					
+					vscode.window.showErrorMessage('Failed finding WiFi devices in range of MicroPython device.', err);
 				});
-
-
-
-				// writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
-
-				// }).catch((err) => {
-
-				// });
 			}
 		}).catch((err) => {
 			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${err}`);

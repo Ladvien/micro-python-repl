@@ -75,7 +75,6 @@ export function writeBoot(microREPL: MicroPythonREPL, ssid: string, password: st
         const wifiOnBoot = `import network\n` +
                              `sta_if = network.WLAN(network.STA_IF)\n` +
                              `sta_if.active(True)\n` + 
-                             `sta_if.scan()\n` +
                              `sta_if.connect('${ssid}', '${password}')\n` +
                              `sta_if.isconnected()`;
 
