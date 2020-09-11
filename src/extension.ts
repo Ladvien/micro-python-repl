@@ -6,8 +6,9 @@ import { ISerialDevice } from './interfaces/SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
 import { delay, selectMicroPythonTerm, showQuickPick, getUserText } from './util';
-import { getWifiSSIDInRange, writeBoot } from './deviceSystem';
+import { setupWifi } from './deviceSystem';
 import { resolve } from 'path';
+import * as termCon from './terminalConstants';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
@@ -64,44 +65,21 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	const setupWifi = vscode.commands.registerCommand('micro-python-terminal.setupWifi', async () => {
-		
-		let serialDevice = await checkIfSerialDeviceExists(context);
-		createMicroREPL(serialDevice).then(() => {
-			if(microREPL !== undefined){
-
-				// Get list of WiFi.
-				getWifiSSIDInRange(microREPL).then((ssids) => {
-					
-					// Have the user select a SSID.
-					showQuickPick(ssids.map(x =>  <string>x.ssid ), 'No WiFI devices found.').then(async (selectedSSID) => {
-						// Get password
-						const password = await getUserText('Enter WiFi passsword', true);
-						if(microREPL !== undefined){
-							writeBoot(microREPL, 'Wireless-N(2.4G)', 'test').then((result) => {
-								resolve();
-							}).catch((err) => {
-								vscode.window.showErrorMessage('Failed to write boot.py during WiFi selection.', err);
-							});
-						}
-					}).catch((err) => {
-						vscode.window.showErrorMessage('Failed to select WiFi device', err);
-					});
-				}).catch((err) => {
-					vscode.window.showErrorMessage('Failed finding WiFi devices in range of MicroPython device.', err);
-				});
-			}
-		}).catch((err) => {
-			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${err}`);
-		});
-
+	const setupWifiCommand = vscode.commands.registerCommand('micro-python-terminal.setupWifi', async () => {
+		try {
+			let serialDevice = await checkIfSerialDeviceExists(context);
+			const microREPL = await createMicroREPL(serialDevice);
+			await setupWifi(microREPL);
+		} catch (error) {
+			vscode.window.showErrorMessage(`Unable to create a MicroPython terminal. ${error}`);
+		}
 	});
 
 	const subscriptions = [
 		microPyTermCommand,
 		sendTextTermCommand,
 		selectDeviceCommand,
-		setupWifi
+		setupWifiCommand
 	];
 	vscode.window.onDidCloseTerminal(shutdown);
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);

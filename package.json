@@ -35,7 +35,7 @@
       },
       {
         "command": "micro-python-terminal.setupWifi",
-        "title": "MicroPython: Setup WiFI"
+        "title": "MicroPython: Setup WiFi"
       }
     ]
   },

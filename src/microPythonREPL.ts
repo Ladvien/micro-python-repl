@@ -22,7 +22,7 @@ export class MicroPythonREPL {
     captureOutput: boolean = false;
     replReady: boolean = false;
     rxBuffer: String = '';
-    captureBuffer: String = '';
+    private captureBuffer: String = '';
     logPath: String;
 
     replParser: REPLParser;
@@ -113,7 +113,22 @@ export class MicroPythonREPL {
     
 
     clearLog() {
-        this.log('');
+        fs.writeFileSync(<string>this.logPath, '');
+    }
+
+    sendSystemMessage(message: string, clearScreen = false) {
+        if(clearScreen) { this.clearScreen(); }
+        this.sendToDisplay(`${termCon.CLEAR_LINE}${termCon.PURPLE}${message}${termCon.RESET_COLOR}\n\r`);
+    }
+
+    getREPLPrompt() {
+        this.writeToDevice(`${termCon.EXEC}`);
+    }
+    
+    getCaptureBuffer() {
+        const tmp = <string>this.captureBuffer;
+        this.captureBuffer = '';
+        return tmp;
     }
 
     private clearScreen() {

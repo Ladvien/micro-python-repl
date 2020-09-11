@@ -4,18 +4,26 @@ export async function delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function getUserText(placeholder = '', password = false): Promise<String> {
+export function typeError(error: any): Error {
+    if(error instanceof Error) {
+        return <Error>error;
+    } else {
+        throw error;
+    }
+}
+
+export async function getUserText(placeholder = '', password = false): Promise<string> {
     return new Promise(async (resolve) => {
         resolve(await window.showInputBox({ placeHolder: placeholder, password: password }));
     });
 }
 
-export async function showQuickPick(items: any[], placeHolderText: string): Promise<String> {
-	return new Promise(async (resolve) => {
-        const result = await window.showQuickPick(items.map(String), { placeHolder: placeHolderText });
-        const selectedValue = result ? result : 'Failed to get user value.';
-        resolve(selectedValue);
-    });
+export async function showQuickPick(items: any[], placeHolderText: string) {
+    const selection = await window.showQuickPick(items.map(String), { placeHolder: placeHolderText });
+    if(selection && selection !== 'None'){
+        return selection;
+    }
+    throw new Error('No selection provided.');
 }
 
 export function selectMicroPythonTerm(terminals: readonly Terminal[]): Promise<Terminal> {
