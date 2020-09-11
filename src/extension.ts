@@ -5,10 +5,9 @@ import { window, Range } from 'vscode';
 import { ISerialDevice } from './interfaces/SerialDevice';
 import { MicroPythonREPL } from './microPythonREPL';
 import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDeviceSelector";
-import { delay, selectMicroPythonTerm, showQuickPick, getUserText } from './util';
+import { delay, selectMicroPythonTerm, showQuickPick, getUserText, typeError } from './util';
 import { setupWifi } from './deviceSystem';
-import { resolve } from 'path';
-import * as termCon from './terminalConstants';
+import { deleteFileOnDev } from './microPythonFS';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
@@ -75,11 +74,24 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	});
 
+	const removeBootFileCommand = vscode.commands.registerCommand('micro-python-terminal.deleteBoot', async () => {
+		try {
+			let serialDevice = await checkIfSerialDeviceExists(context);
+			const microREPL = await createMicroREPL(serialDevice, logPath);
+			await deleteFileOnDev(microREPL, `/boot.py`);
+			await microREPL.reset();
+		} catch (error) {
+			const e = typeError(error);
+			vscode.window.showErrorMessage(e.message);
+		}
+	});
+
 	const subscriptions = [
 		microPyTermCommand,
 		sendTextTermCommand,
 		selectDeviceCommand,
-		setupWifiCommand
+		setupWifiCommand,
+		removeBootFileCommand
 	];
 	vscode.window.onDidCloseTerminal(shutdown);
 	context.subscriptions.push.apply(context.subscriptions, subscriptions);

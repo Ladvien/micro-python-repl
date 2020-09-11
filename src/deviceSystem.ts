@@ -3,8 +3,9 @@ import { MicroPythonREPL } from './microPythonREPL';
 import * as termCon from './terminalConstants';
 import { delay, showQuickPick, getUserText, typeError } from './util';
 import { ISSID } from './interfaces/SSID';
-import { write } from 'fs';
+import { write, writeFile } from 'fs';
 import { start } from 'repl';
+import { deleteFileOnDev, writeFileOnDev } from './microPythonFS';
 
 export async function setupWifi(microREPL: MicroPythonREPL, override: any = undefined) {
 
@@ -39,8 +40,8 @@ export async function setupWifi(microREPL: MicroPythonREPL, override: any = unde
                 await notifyUser(microREPL, 'Resetting.');
                 await microREPL.reset();
                 await delay(3500);
-                const startUpCapture = microREPL.getCaptureBuffer();
-                if(startUpCapture.includes(`network: CONNECTED`)) { connectionStatus = `${termCon.GREEN}connected${termCon.PURPLE}`;}
+                const capture = microREPL.getCaptureBuffer();
+                if(capture.includes(`network: CONNECTED`)) { connectionStatus = `${termCon.GREEN}connected${termCon.PURPLE}`;}
                 microREPL.showUser = true;
                 microREPL.sendSystemMessage(`${termCon.NEWLINE}MicroPython boot.py file created.`);
                 microREPL.sendSystemMessage(`Device will attempt to connect to ${selectedSSID} on startup.`);
@@ -122,10 +123,8 @@ export async function writeBoot(microREPL: MicroPythonREPL, ssid: string, passwo
                              `sta_if.connect('${ssid}', '${password}')\n` +
                              `sta_if.isconnected()`;
 
-        const fileWriteCMD = createFileWriteToFileString(wifiOnBoot, 'boot.py');
-
         try {
-            microREPL.sendSelectedText(fileWriteCMD);
+            writeFileOnDev(microREPL, '/boot.py', wifiOnBoot, true);
             await delay(800);  // TODO: Cheap code.  
                                //       Wait until file is written.  Feedback would be better
         } catch (error) {
@@ -133,32 +132,7 @@ export async function writeBoot(microREPL: MicroPythonREPL, ssid: string, passwo
         }
 }
 
-function createFileWriteToFileString(text: string, filename: string, path: string = ''): string {
 
-    let fileWriteCmd = '';
-    const rawLines = text.split('\n');
-    let filePath = '';
-    
-    if(path !== '') {
-        filePath = path + '/' + filename;
-    } else {
-        filePath = filename;
-    }
-    
-    fileWriteCmd =  `try:\n` +
-                    `    import uos\n` +
-                    `    uos.remove("${filePath}")\n` +
-                    `except:\n` +
-                    `    pass\n`;
-
-                    fileWriteCmd += `with open("${filePath}", "w") as f:` + '\n';
-    for (let i = 0; i < rawLines.length; i++) {
-        const line = rawLines[i];
-        fileWriteCmd += `    f.write("` + line + `\\n")`; 
-        fileWriteCmd += '\n';
-    }
-    return fileWriteCmd;
-}
 
 async function stopWifi(microREPL: MicroPythonREPL) {
         const fileWriteCmd =    `try:\n` +
@@ -176,19 +150,7 @@ async function stopWifi(microREPL: MicroPythonREPL) {
     }
 }
 
-async function removeFile(microREPL: MicroPythonREPL,filePath: string) {
-    const fileWriteCmd =    `try:\n` +
-                            `    import uos\n` +
-                            `    uos.remove("${filePath}")\n` +
-                            `except:\n` +
-                            `    pass\n`;
 
-    try {
-        await microREPL.sendSelectedText(fileWriteCmd);
-    } catch (error) {
-        throw new Error(`Failed to remove ${filePath}.`);
-    }
-}
 
 async function notifyUser(microREPL: MicroPythonREPL, message: string): Promise<vscode.Disposable> {
     microREPL.sendSystemMessage(message);

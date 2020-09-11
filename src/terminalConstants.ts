@@ -6,6 +6,8 @@ export const TERM_ROWS              = 20;
 
 export const SPACES_PER_INDENT      = 4;
 
+export const PY_CMD_FAILED_MSG      = `MicroPython: failed`;
+
 export const ESC                    = `\u001b`;
 export const CLEAR_ALL              = `${ESC}[2J`;
 export const CLEAR_LINE             = `${ESC}[2K\r`;

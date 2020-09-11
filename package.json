@@ -36,6 +36,10 @@
       {
         "command": "micro-python-terminal.setupWifi",
         "title": "MicroPython: Setup WiFi"
+      },
+      {
+        "command": "micro-python-terminal.deleteBoot",
+        "title": "MicroPython: Delete Boot File"
       }
     ]
   },
