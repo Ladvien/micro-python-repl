@@ -1,8 +1,8 @@
 {
-  "name": "micro-python-terminal",
-  "displayName": "µ-python-terminal",
-  "description": "A terminal for MicroPython development.",
-  "version": "0.0.1",
+  "name": "micro-python-repl",
+  "displayName": "MicroPython REPL",
+  "description": "A terminal and tools for rapid MicroPython development.",
+  "version": "0.0.3",
   "engines": {
     "vscode": "^1.47.0"
   },

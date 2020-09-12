@@ -153,7 +153,6 @@ export class MicroPythonREPL {
     }
 
     private sendToDisplay(line: string) {
-        console.log(<string>this.nonAsciiToHex(line));
         if(this.upyTerminal) {
             this.upyTerminal.sendToTerminal(line);
         }
