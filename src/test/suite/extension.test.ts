@@ -11,14 +11,15 @@ import { MicroPythonREPL } from './../../microPythonREPL';
 import { createMicroREPL, closeMicroREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
 import { ISerialDevice } from '../../interfaces/SerialDevice';
-import { delay, selectMicroPythonTerm } from '../../util';
-import { setupWifi } from '../../deviceSystem';
+import { delay, selectMicroPythonTerm, typeError } from '../../util';
+import { setupWifi, getWifiSSIDInRange } from '../../deviceSystem';
 import { deleteFileOnDev } from '../../microPythonFS';
 
 const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
 const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_python/';
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
+const wifiCreds = JSON.parse(fs.readFileSync('/home/ladvien/Desktop/creds.json').toString());
 
 suite('Extension Test Suite', async () => {
 
@@ -33,7 +34,8 @@ suite('Extension Test Suite', async () => {
 			await deleteFileOnDev(microREPL, '/boot.py');
 			await microREPL.reset();
 		} catch (error) {
-			console.log(error);
+			const e = typeError(error);
+			console.log('Failed in before', e.message);
 		}
 	});
 
@@ -563,32 +565,53 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('Start MicroPython session with "Setup WiFI" command.', () => {
-		describe('Does not lost text when used on startup', () => {
+		const connectedFlag = `network: CONNECTED0x1b`;
+		describe(`Output contains ${connectedFlag}`, () => {
+			it(`The log file contains ${connectedFlag}`, async () => {
+				let microREPL: MicroPythonREPL;
+				let connectedLine = undefined;
+				try {
+					microREPL = await createMicroREPL(serialDevice, logPath);
+					microREPL.upyTerminal?.terminal.show();
+					microREPL.clearLog();
+					await setupWifi(microREPL, wifiCreds);
+					await delay(2000);
 
-			const firsLineShouldBe = `>>> import utime0x0d `;
-
-			it(`First line is ${firsLineShouldBe}`, async () => {
-
-				// const fileName = 'wait_for_ready.py';
-				// let microREPL: MicroPythonREPL;
-				// try {
-				// 	microREPL = await createMicroREPL(serialDevice, logPath);
-				// 	microREPL.upyTerminal?.terminal.show();
-				// 	microREPL.clearLog();
-				// 	await setupWifi(microREPL, {'username':'test_name', 'password': 'test'});
-
-				// 	let logLines = fs.readFileSync(logPath).toString().split('\n');
-				// 	const firstExecCode = logLines.find(x => x.includes('>>> '));
-				// 	microREPL.clearLog();
-				// 	await closeMicroREPL(microREPL);
-				// 	assert.equal(firstExecCode, firsLineShouldBe);
-				// } catch (error) {
-				// 	console.log(error);
-				// }
+					connectedLine = fs.readFileSync(logPath)
+										  .toString().split('\n')
+										  .find(x => x.includes(connectedFlag));
+					microREPL.clearLog();
+					await deleteFileOnDev(microREPL, '/boot.py').catch(() => {});
+					await closeMicroREPL(microREPL);
+					assert.notEqual(connectedLine, undefined);
+				} catch (error) {
+					assert.fail();
+				}
 			});
 		});
 	});
 
+	test('getWifiSSIDInRange().', () => {
+		describe(`Returns an array of SSIDs`, () => {
+			it(`The test SSID is in array.`, async () => {
+				let microREPL: MicroPythonREPL;
+				let testSSID = undefined;
+				try {
+					microREPL = await createMicroREPL(serialDevice, logPath);
+					microREPL.upyTerminal?.terminal.show();
+
+					const ssids = await getWifiSSIDInRange(microREPL, 1);
+					testSSID = ssids.find(x => x.ssid = wifiCreds['ssid']);
+					
+					await deleteFileOnDev(microREPL, '/boot.py').catch(() => {});
+					await closeMicroREPL(microREPL);
+					assert.notEqual(testSSID, wifiCreds['ssid']);
+				} catch (error) {
+					assert.fail();
+				}
+			});
+		});
+	});
 	// TODO: Test WiFi parsing
 
 	// I (1258) wifi:Init dynamic rx buffer num: 32

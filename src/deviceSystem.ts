@@ -31,7 +31,7 @@ export async function setupWifi(microREPL: MicroPythonREPL, override: any = unde
                         throw new Error('No password entered.');
                     }
                 } else {
-                    selectedSSID = override['name'];
+                    selectedSSID = override['ssid'];
                     password = override['password'];
                 }
                 await notifyUser(microREPL, 'Writing boot.py.');
