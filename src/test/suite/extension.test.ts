@@ -15,11 +15,11 @@ import { delay, selectMicroPythonTerm, typeError } from '../../util';
 import { setupWifi, getWifiSSIDInRange } from '../../deviceSystem';
 import { deleteFileOnDev, fileExistsOnDev, writeFileOnDev } from '../../microPythonFS';
 
-const test_port = '/dev/ttyUSB0';
+const test_port = 'COM8';
 const test_baud = 115200;
-const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_python/';
-const logPath = '/home/ladvien/Desktop/log.txt';
-const wifiCreds = JSON.parse(fs.readFileSync('/home/ladvien/Desktop/creds.json').toString());
+const test_code_folder = 'C:/Users/cthom/Desktop/micro-python-repl/src/test/test_python/';
+const logPath = 'C:/Users/cthom/Desktop/log.txt';
+const wifiCreds = JSON.parse(fs.readFileSync('C:/Users/cthom/Desktop/creds.json').toString());
 
 suite('Extension Test Suite', async () => {
 

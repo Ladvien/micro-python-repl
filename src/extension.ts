@@ -138,9 +138,10 @@ export function createMicroREPL(serialDevice: ISerialDevice, logPath: string = "
 			await delay(1000);
 		}
 		if(logPath !== '') { microREPL.logPath = logPath; }
-		if(microREPL.upyTerminal === undefined) {
+		if(microREPL.upyTerminal?.terminal === undefined) {
 			microREPL.attachTerminal(new MicroPythonTerminal());
 		}
+		microREPL.upyTerminal?.terminal.show();
 		microREPL.openSerialConnection();
 		microREPL.waitForReady().then(async (result) => {
 			if(microREPL !== undefined) {

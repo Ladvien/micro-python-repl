@@ -67,7 +67,7 @@ export class MicroPythonREPL {
                 if(this.isMicroREPLReady()) { resolve(true); }
                 await delay(this.DELAY_BETWEEN_READY_TRIES);
             } 
-            reject(`waitForReady failed. serialConnect is ${this.serialConnection.connected}, replReady is ${this.replReady}, upyTerminalReady ${this.upyTerminal?.terminalShowing}`);
+            reject(Error(`waitForReady failed. serialConnect is ${this.serialConnection.connected}, replReady is ${this.replReady}, upyTerminalReady ${this.upyTerminal?.terminalShowing}`));
         });
     }
 
@@ -252,7 +252,7 @@ export class MicroPythonREPL {
     private terminalOpen() {
         this.clearScreen();
         this.welcomeMessage();
-        this.serialConnection.open();
+        // this.serialConnection.open();
     }
 }
 
