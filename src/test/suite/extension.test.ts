@@ -18,7 +18,7 @@ import { deleteFileOnDev, fileExistsOnDev, writeFileOnDev } from '../../microPyt
 const test_port = '/dev/ttyUSB0';
 const test_baud = 115200;
 const test_code_folder = '/home/ladvien/micro-python-terminal/src/test/test_python/';
-const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
+const logPath = '/home/ladvien/Desktop/log.txt';
 const wifiCreds = JSON.parse(fs.readFileSync('/home/ladvien/Desktop/creds.json').toString());
 
 suite('Extension Test Suite', async () => {
