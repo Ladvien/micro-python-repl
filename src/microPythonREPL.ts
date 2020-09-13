@@ -101,7 +101,6 @@ export class MicroPythonREPL {
             while(i !== lines.length) {
                 const line = lines[i];
                 if(this.isMicroREPLReady()) {
-                    console.log(this.nonAsciiToHex(chunk));
                     await this.writeToDevice(<string>line);
                     this.replReady = false;
                     await delay(this.DELAY_BETWEEN_SEND_TEXT);
@@ -179,11 +178,11 @@ export class MicroPythonREPL {
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
             const rawChar = char.charCodeAt(0);
-            if (rawChar >= 32 && rawChar < 127 ) {
+            if (rawChar >= 32 && rawChar < 127 || 10) {
                 parsedString += char;
             } else {
                 let prefix = '0x';
-                if(rawChar < 17){ prefix = '0x0'; }
+                if(rawChar < 16){ prefix = '0x0'; }
                 parsedString += prefix + rawChar.toString(16) + ' ';
             }
         }
@@ -245,7 +244,6 @@ export class MicroPythonREPL {
     }
 
     private async gotUserInput(text: String) {
-        console.log(this.nonAsciiToHex(text));
         if(!this.serialConnection.connected && text === ' ') { 
             this.serialConnection.open(); 
             return;

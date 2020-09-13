@@ -24,7 +24,7 @@ const wifiCreds = JSON.parse(fs.readFileSync(path.resolve(__dirname, test_params
 const test_code_folder = testCodePath;
 
 suite('Extension Test Suite', async () => {
-
+	let constants = new Constants();
 	let serialDevice: ISerialDevice = <ISerialDevice>{port: test_params["test_port"], baud: test_params["test_baud"]};
 	
 	vscode.window.showInformationMessage('Start all tests.');
@@ -34,6 +34,7 @@ suite('Extension Test Suite', async () => {
 		try {
 			const microREPL = await createMicroREPL(serialDevice);
 			await deleteFileOnDev(microREPL, '/boot.py');
+			await delay(500);
 			await microREPL.reset();
 			await closeMicroREPL(microREPL);
 		} catch (error) {
@@ -58,7 +59,7 @@ suite('Extension Test Suite', async () => {
 			const replParser = new REPLParser(constants);
 			tests.forEach(function (test) {
 				it('correctly find the number of spaces at the beginning of "' + test.args + '"', function (){
-					assert.equal(replParser.getNumberOfSpacesAtStart(test.args), test.expected);
+					assert.strictEqual(replParser.getNumberOfSpacesAtStart(test.args), test.expected);
 				});
 			});
 		});
@@ -80,7 +81,7 @@ suite('Extension Test Suite', async () => {
 			const replParser = new REPLParser(constants);
 			tests.forEach(function (test) {
 				it('correctly find the number of Python indents (4 spaces) at the beginning of "' + test.args + '"', function (){
-					assert.equal(replParser.countLineIndents(test.args), test.expected);
+					assert.strictEqual(replParser.countLineIndents(test.args), test.expected);
 				});
 			});
 		});
@@ -101,7 +102,7 @@ suite('Extension Test Suite', async () => {
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
-					assert.equal(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
+					assert.strictEqual(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
 				});
 			});
 		});
@@ -127,7 +128,7 @@ suite('Extension Test Suite', async () => {
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
-					assert.equal(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
+					assert.strictEqual(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
 				});
 			});
 		});
@@ -155,7 +156,7 @@ suite('Extension Test Suite', async () => {
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
-					assert.equal(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
+					assert.strictEqual(replParser.getNeededBreaksAfter(test.args.lines, test.args.currentPos), test.expected);
 				});
 			});
 		});
@@ -190,14 +191,14 @@ suite('Extension Test Suite', async () => {
 			];
 
 			it('correctly excludes empty lines from chunks array', function(){
-				assert.equal(lines.length, 6);
+				assert.strictEqual(lines.length, 6);
 			});
 
 			tests.forEach(function (test) {
 				for (let i = 0; i < lines.length; i++) {
 					const chunk = lines[i];
 					it('correctly sends or does not send line "' + test.args.lines[i].replace('\n', '') + '"', function (){
-						assert.equal(chunk, tests[i].expected);
+						assert.strictEqual(chunk, tests[i].expected);
 					});
 				}
 			});
@@ -210,13 +211,13 @@ suite('Extension Test Suite', async () => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					const terminal = await selectMicroPythonTerm(vscode.window.terminals);
 					terminal.show();
-					assert.equal(terminal.name, 'MicroPython');
-					assert.notEqual(microREPL, undefined);
-					assert.notEqual(microREPL.serialConnection, undefined);
+					assert.strictEqual(terminal.name, 'MicroPython');
+					assert.notStrictEqual(microREPL, undefined);
+					assert.notStrictEqual(microREPL.serialConnection, undefined);
 					if(microREPL.upyTerminal !== undefined) {
-						assert.equal(microREPL.upyTerminal.terminal, terminal);
+						assert.strictEqual(microREPL.upyTerminal.terminal, terminal);
 					}
-					assert.equal(microREPL.serialConnection.connected, true);
+					assert.strictEqual(microREPL.serialConnection.connected, true);
 
 					// Shutdown
 					closeMicroREPL(microREPL).then(async (terminal) => {
@@ -232,7 +233,7 @@ suite('Extension Test Suite', async () => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					if(microREPL.upyTerminal){
 						closeMicroREPL(microREPL).then(async () => {
-							assert.equal(microREPL.upyTerminal, undefined);
+							assert.strictEqual(microREPL.upyTerminal, undefined);
 							done();
 						}).catch((err) => {
 							fail(err);
@@ -246,11 +247,11 @@ suite('Extension Test Suite', async () => {
 			});
 			it('closeTerm() causes SerialPort connection to be closed', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
-					assert.notEqual(microREPL.upyTerminal?.terminal, undefined);
+					assert.notStrictEqual(microREPL.upyTerminal?.terminal, undefined);
 					if(microREPL.upyTerminal !== undefined) {
 						closeMicroREPL(microREPL).then(async () => {
-							assert.equal(microREPL.serialConnection.connected, false);
-							assert.equal(microREPL.serialConnection.port.isOpen, false);
+							assert.strictEqual(microREPL.serialConnection.connected, false);
+							assert.strictEqual(microREPL.serialConnection.port.isOpen, false);
 							done();
 						}).catch((err) => {
 							fail(err);
@@ -262,27 +263,27 @@ suite('Extension Test Suite', async () => {
 			});
 			it('Create new MicroPython terminal after deactivate()', function (done) {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
-					assert.equal(microREPL.upyTerminal?.terminal.name, 'MicroPython');
-					assert.equal(microREPL.isMicroREPLReady(), true);
+					assert.strictEqual(microREPL.upyTerminal?.terminal.name, 'MicroPython');
+					assert.strictEqual(microREPL.isMicroREPLReady(), true);
 					if(microREPL.upyTerminal !== undefined) {
 						// Shutdown
 						closeMicroREPL(microREPL).then(async () => {
-							assert.equal(microREPL.upyTerminal, undefined);
-							assert.equal(microREPL.serialConnection.connected, false);
-							assert.equal(microREPL.serialConnection.port.isOpen, false);
-							assert.equal(microREPL.isMicroREPLReady(), false);
+							assert.strictEqual(microREPL.upyTerminal, undefined);
+							assert.strictEqual(microREPL.serialConnection.connected, false);
+							assert.strictEqual(microREPL.serialConnection.port.isOpen, false);
+							assert.strictEqual(microREPL.isMicroREPLReady(), false);
 
 							// Second create.
 							createMicroREPL(serialDevice).then(async (microREPL) => {
-								assert.equal(microREPL.upyTerminal?.terminal.name, 'MicroPython');
-								assert.equal(microREPL.isMicroREPLReady(), true);
+								assert.strictEqual(microREPL.upyTerminal?.terminal.name, 'MicroPython');
+								assert.strictEqual(microREPL.isMicroREPLReady(), true);
 								if(microREPL.upyTerminal !== undefined) {
 									// Second shutdown
 									closeMicroREPL(microREPL).then(async () => {
-										assert.equal(microREPL.upyTerminal, undefined);
-										assert.equal(microREPL.serialConnection.connected, false);
-										assert.equal(microREPL.serialConnection.port.isOpen, false);
-										assert.equal(microREPL.isMicroREPLReady(), false);
+										assert.strictEqual(microREPL.upyTerminal, undefined);
+										assert.strictEqual(microREPL.serialConnection.connected, false);
+										assert.strictEqual(microREPL.serialConnection.port.isOpen, false);
+										assert.strictEqual(microREPL.isMicroREPLReady(), false);
 										done();
 									}).catch((err) => {
 										fail(err);
@@ -310,7 +311,7 @@ suite('Extension Test Suite', async () => {
 			it('replReady is true on instantiation', (done) => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					if(microREPL.upyTerminal){
-						assert.notEqual(microREPL.serialConnection.port, undefined);
+						assert.notStrictEqual(microREPL.serialConnection.port, undefined);
 						closeMicroREPL(microREPL).then(async () => {
 							done();
 						}).catch((err) => {
@@ -326,7 +327,7 @@ suite('Extension Test Suite', async () => {
 			it('serialConnection.connected is true on instantiation', (done) => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
 					if(microREPL.upyTerminal){
-						assert.equal(microREPL.serialConnection.connected, true);
+						assert.strictEqual(microREPL.serialConnection.connected, true);
 						closeMicroREPL(microREPL).then(async () => {
 							done();
 						}).catch((err) => {
@@ -342,10 +343,10 @@ suite('Extension Test Suite', async () => {
 
 			it('Sets serialConnection to true.', (done) => {
 				createMicroREPL(serialDevice).then(async (microREPL) => {
-					assert.equal(microREPL.serialConnection.connected, true);
+					assert.strictEqual(microREPL.serialConnection.connected, true);
 					if(microREPL.upyTerminal){
 						closeMicroREPL(microREPL).then(async () => {
-							assert.equal(microREPL.upyTerminal, undefined);
+							assert.strictEqual(microREPL.upyTerminal, undefined);
 							done();
 						}).catch((err) => {
 							fail(err);
@@ -368,10 +369,10 @@ suite('Extension Test Suite', async () => {
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
-					assert.equal(`>>> `, logLines[logLines.length - 1]);
+					assert.strictEqual(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
-						assert.equal(microREPL.upyTerminal, undefined);
+						assert.strictEqual(microREPL.upyTerminal, undefined);
 						done();
 					}).catch((err) => {
 						fail(err);
@@ -397,10 +398,10 @@ suite('Extension Test Suite', async () => {
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					microREPL.clearLog();
-					assert.equal(`>>> `, logLines[logLines.length - 1]);
+					assert.strictEqual(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
-						assert.equal(microREPL.upyTerminal, undefined);
+						assert.strictEqual(microREPL.upyTerminal, undefined);
 						done();
 					}).catch((err) => {
 						fail(err);
@@ -429,12 +430,12 @@ suite('Extension Test Suite', async () => {
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					let secondToLastLine = logLines[logLines.length - 2];
 					let lastLine = logLines[logLines.length - 1];
-					assert.equal('500x0d ', secondToLastLine);
-					assert.equal(`>>> `, lastLine);
+					assert.strictEqual(`50${constants.NEWLINE}`, secondToLastLine);
+					assert.strictEqual(`>>> `, lastLine);
 					microREPL.clearLog();
 
 					closeMicroREPL(microREPL).then(async () => {
-						assert.equal(microREPL.upyTerminal, undefined);
+						assert.strictEqual(microREPL.upyTerminal, undefined);
 						done();
 					}).catch((err) => {
 						fail(err);
@@ -465,12 +466,12 @@ suite('Extension Test Suite', async () => {
 					// >>> 
 	
 					var tests = [
-						`>>> test_var = 00x0d `,
-						`>>> try:0x0d `,
-						`...     test_var = 1+10x0d `,
-						`...     0x08 0x08 0x08 0x08 0x1b [Kexcept:0x0d `,
-						`...     test_var = '3+3'0x0d `,
-						`...     0x08 0x08 0x08 0x08 0x1b [K0x0d `,
+						`>>> test_var = 0${constants.EXEC}`,
+						`>>> try:${constants.EXEC}`,
+						`...     test_var = 1+1${constants.EXEC}`,
+						`...     ${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.ESC}[Kexcept:${constants.EXEC}`,
+						`...     test_var = '3+3'${constants.EXEC}`,
+						`...     ${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.REDUCE_INDENT}${constants.ESC}[K${constants.EXEC}`,
 						`>>> `
 					];
 					
@@ -482,12 +483,12 @@ suite('Extension Test Suite', async () => {
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
 						const testLine = tests[tests.length - i];
-						assert.equal(testLine, logLine);
+						assert.strictEqual(testLine, logLine);
 					}
 					microREPL.clearLog();
 
 					closeMicroREPL(microREPL).then(async () => {
-						assert.equal(microREPL.upyTerminal, undefined);
+						assert.strictEqual(microREPL.upyTerminal, undefined);
 						done();
 					}).catch((err) => {
 						fail(err);
@@ -508,16 +509,16 @@ suite('Extension Test Suite', async () => {
 					let codeLines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 					
 	
-					// 3: hello0x0d 
-					// 2: >>> fun_func()0x0d 
-					// 1: fun0x0d 
+					// 3: hello${constants.EXEC}
+					// 2: >>> fun_func()${constants.EXEC}
+					// 1: fun${constants.EXEC}
 					// 0: >>> 
 
 					var tests = [
-						'hello0x0d ', 
-						'>>> fun_func()0x0d ', 
-						'fun0x0d ', 
-						'>>> '
+						`hello${constants.EXEC}`, 
+						`>>> fun_func()${constants.EXEC}`, 
+						`fun${constants.EXEC}`, 
+						`>>> `
 					];
 					
 					microREPL.clearLog();
@@ -528,12 +529,12 @@ suite('Extension Test Suite', async () => {
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
 						const testLine = tests[tests.length - i];
-						assert.equal(testLine, logLine);
+						assert.strictEqual(testLine, logLine);
 					}
 					microREPL.clearLog();
 
 					closeMicroREPL(microREPL).then(async () => {
-						assert.equal(microREPL.upyTerminal, undefined);
+						assert.strictEqual(microREPL.upyTerminal, undefined);
 						done();
 					}).catch((err) => {
 						fail(err);
@@ -549,7 +550,7 @@ suite('Extension Test Suite', async () => {
 	test('Send Text', () => {
 		describe('Does not lose text when used on startup', () => {
 
-			const firsLineShouldBe = `>>> import utime0x0d `;
+			const firsLineShouldBe = `>>> import utime${constants.EXEC}`;
 
 			it(`First line is ${firsLineShouldBe}`, async () => {
 
@@ -564,7 +565,7 @@ suite('Extension Test Suite', async () => {
 					const firstExecCode = logLines.find(x => x.includes('>>> '));
 					microREPL.clearLog();
 					await closeMicroREPL(microREPL);
-					assert.equal(firstExecCode, firsLineShouldBe);
+					assert.strictEqual(firstExecCode, firsLineShouldBe);
 				} catch (error) {
 					console.log(error);
 				}
@@ -573,7 +574,7 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('Start MicroPython session with "Setup WiFI" command.', () => {
-		const connectedFlag = `network: CONNECTED0x1b`;
+		const connectedFlag = `network: CONNECTED`;
 		describe(`Output contains ${connectedFlag}`, () => {
 			it(`The log file contains ${connectedFlag}`, async () => {
 				let microREPL: MicroPythonREPL;
@@ -591,7 +592,7 @@ suite('Extension Test Suite', async () => {
 					microREPL.clearLog();
 
 					await closeMicroREPL(microREPL);
-					assert.notEqual(connectedLine, undefined);
+					assert.notStrictEqual(connectedLine, undefined);
 				} catch (error) {
 					assert.fail();
 				}
@@ -614,7 +615,7 @@ suite('Extension Test Suite', async () => {
 						await deleteFileOnDev(microREPL, '/boot.py');
 					}
 					await closeMicroREPL(microREPL);
-					assert.notEqual(testSSID, wifiCreds['ssid']);
+					assert.notStrictEqual(testSSID, wifiCreds['ssid']);
 				} catch (error) {
 					assert.fail();
 				}
@@ -641,7 +642,7 @@ suite('Extension Test Suite', async () => {
 	// 				const fileExists = await fileExistsOnDev(microREPL, testFilePath);
 	// 				await closeMicroREPL(microREPL);
 
-	// 				assert.equal(fileExists, true);
+	// 				assert.strictEqual(fileExists, true);
 	// 			} catch (error) {
 	// 				assert.fail();
 	// 			}
