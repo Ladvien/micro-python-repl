@@ -2,18 +2,11 @@
 
 export class Constants {
 
-    EXEC: string;
-    NEWLINE: string;
-    WELCOME_MESSAGE: string;
+    constructor(){}
 
-    constructor(){
-        if(process.platform === 'win32'){ this.EXEC = '\r'; }
-        else { this.EXEC =  '\r'; }
-        if(process.platform === 'win32'){ this.NEWLINE = '\r'; }
-        else { this.NEWLINE =  '\r'; }
-        this.WELCOME_MESSAGE = `Welcome to MicroPython Terminal for VSCode.${this.NEWLINE}Written by C. Thomas Brittain${this.NEWLINE}`;
-    }
-    
+    EXEC = '\r';
+    NEWLINE = this.EXEC;
+    WELCOME_MESSAGE =  `Welcome to MicroPython Terminal for VSCode.${this.NEWLINE}Written by C. Thomas Brittain${this.NEWLINE}`;
 
     DELAY_BETWEEN_EXEC     = 60;        
     DELAY_BEFORE_WELCOME   = 1200;
@@ -49,6 +42,4 @@ export class Constants {
     GREEN                  = `${this.ESC}[38;5;82m`;
     PURPLE                 = `${this.ESC}[38;5;128m`;
     RESET_COLOR            = `${this.ESC}[39;49m`;
-    
-           
 }

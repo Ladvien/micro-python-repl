@@ -558,7 +558,8 @@ suite('Extension Test Suite', async () => {
 				let microREPL: MicroPythonREPL;
 				try {
 					microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
-					microREPL.clearLog();
+					microREPL.upyTerminal?.terminal.show();
+					// microREPL.clearLog();
 					let codeLines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 					await microREPL.sendSelectedText(codeLines);
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
