@@ -5,7 +5,7 @@ import { fail } from 'assert';
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-
+import os = require('os');
 import * as termCon from '../../terminalConstants';
 import { MicroPythonREPL } from './../../microPythonREPL';
 import { createMicroREPL, closeMicroREPL } from '../../extension';
@@ -15,15 +15,14 @@ import { delay, selectMicroPythonTerm, typeError } from '../../util';
 import { setupWifi, getWifiSSIDInRange } from '../../deviceSystem';
 import { deleteFileOnDev, fileExistsOnDev, writeFileOnDev } from '../../microPythonFS';
 
-const test_port = 'COM8';
-const test_baud = 115200;
-const test_code_folder = 'C:/Users/cthom/Desktop/micro-python-repl/src/test/test_python/';
-const logPath = 'C:/Users/cthom/Desktop/log.txt';
-const wifiCreds = JSON.parse(fs.readFileSync('C:/Users/cthom/Desktop/creds.json').toString());
+const filePath = `/../configs/${process.platform}_test_config.json`;
+const test_params = JSON.parse(fs.readFileSync(filePath).toString());
+const wifiCreds = JSON.parse(fs.readFileSync(test_params["wifiCredsPath"]).toString());
+const test_code_folder = './src/test/test_python';
 
 suite('Extension Test Suite', async () => {
 
-	let serialDevice: ISerialDevice = <ISerialDevice>{port: test_port, baud: test_baud};
+	let serialDevice: ISerialDevice = <ISerialDevice>{port: test_params["test_port"], baud: test_params["test_baud"]};
 	
 	vscode.window.showInformationMessage('Start all tests.');
 
@@ -356,11 +355,11 @@ suite('Extension Test Suite', async () => {
 	test('serialConnect.reset() forces the MicroPython device to reset.', () => {
 		describe(`serialConnect.reset() is executed and log file checked for welcome message`, () => {
 			it('Makes sure the reset() causes the MicroPython hello message to appears', (done) => {
-				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
 					microREPL.clearLog();
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					assert.equal(`>>> `, logLines[logLines.length - 1]);
 
 					closeMicroREPL(microREPL).then(async () => {
@@ -384,11 +383,11 @@ suite('Extension Test Suite', async () => {
 			it('Ensure error message shows.', (done) => {
 
 
-				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
 					microREPL.clearLog();
 					await microREPL.reset();
 					await delay(2500); // Wait for REPL to load.
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					microREPL.clearLog();
 					assert.equal(`>>> `, logLines[logLines.length - 1]);
 
@@ -416,10 +415,10 @@ suite('Extension Test Suite', async () => {
 			it(`ensures the output from ${fileName} is print('50')0xd`, (done) => {
 				let lines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 
-				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
 					microREPL.clearLog();
 					await microREPL.sendSelectedText(lines);
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					let secondToLastLine = logLines[logLines.length - 2];
 					let lastLine = logLines[logLines.length - 1];
 					assert.equal('500x0d ', secondToLastLine);
@@ -445,7 +444,7 @@ suite('Extension Test Suite', async () => {
 		const fileName = 'try_except.py';
 		describe(`REPLParser processes ${fileName}`, () => {
 			it(`try-except block is executed correctly`, (done) => {
-				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
 					let codeLines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 					
 	
@@ -470,7 +469,7 @@ suite('Extension Test Suite', async () => {
 					microREPL.clearLog();
 					await microREPL.sendSelectedText(codeLines);
 	
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
@@ -497,7 +496,7 @@ suite('Extension Test Suite', async () => {
 		const fileName = 'deep_try_except.py';
 		describe(`REPLParser processes ${fileName}`, () => {
 			it(`complicated try-except block is executed correctly`, (done) => {
-				createMicroREPL(serialDevice, logPath).then(async (microREPL) => {
+				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
 					let codeLines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 					
 	
@@ -516,7 +515,7 @@ suite('Extension Test Suite', async () => {
 					microREPL.clearLog();
 					await microREPL.sendSelectedText(codeLines);
 	
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
@@ -549,11 +548,11 @@ suite('Extension Test Suite', async () => {
 				const fileName = 'wait_for_ready.py';
 				let microREPL: MicroPythonREPL;
 				try {
-					microREPL = await createMicroREPL(serialDevice, logPath);
+					microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 					microREPL.clearLog();
 					let codeLines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 					await microREPL.sendSelectedText(codeLines);
-					let logLines = fs.readFileSync(logPath).toString().split('\n');
+					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					const firstExecCode = logLines.find(x => x.includes('>>> '));
 					microREPL.clearLog();
 					await closeMicroREPL(microREPL);
@@ -572,13 +571,13 @@ suite('Extension Test Suite', async () => {
 				let microREPL: MicroPythonREPL;
 				let connectedLine = undefined;
 				try {
-					microREPL = await createMicroREPL(serialDevice, logPath);
+					microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 					microREPL.upyTerminal?.terminal.show();
 					microREPL.clearLog();
 					await setupWifi(microREPL, wifiCreds);
 					await delay(2000);
 
-					connectedLine = fs.readFileSync(logPath)
+					connectedLine = fs.readFileSync(test_params["logPath"])
 										  .toString().split('\n')
 										  .find(x => x.includes(connectedFlag));
 					microREPL.clearLog();
@@ -598,7 +597,7 @@ suite('Extension Test Suite', async () => {
 				let microREPL: MicroPythonREPL;
 				let testSSID = undefined;
 				try {
-					microREPL = await createMicroREPL(serialDevice, logPath);
+					microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 					microREPL.upyTerminal?.terminal.show();
 
 					const ssids = await getWifiSSIDInRange(microREPL, 1);
@@ -622,7 +621,7 @@ suite('Extension Test Suite', async () => {
 	// 		it('writeFileOnDev() creates file at', async () => {
 	// 			let microREPL: MicroPythonREPL;
 	// 			try {
-	// 				microREPL = await createMicroREPL(serialDevice, logPath);
+	// 				microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 	// 				microREPL.upyTerminal?.terminal.show();
 	// 				await delay(500);
 	// 				const fileContent = `this is a test file.\n` +
@@ -643,7 +642,7 @@ suite('Extension Test Suite', async () => {
 	// 		// it(`fileExistsOnDev() finds ${testFilePath}.`, async () => {
 	// 		// 	let microREPL: MicroPythonREPL;
 	// 		// 	try {
-	// 		// 		microREPL = await createMicroREPL(serialDevice, logPath);
+	// 		// 		microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 	// 		// 		microREPL.upyTerminal?.terminal.show();
 	// 		// 		await delay(500);
 
@@ -654,7 +653,7 @@ suite('Extension Test Suite', async () => {
 	// 		it('deleteFileOnDev() removes file.', async () => {
 	// 			let microREPL: MicroPythonREPL;
 	// 			try {
-	// 				microREPL = await createMicroREPL(serialDevice, logPath);
+	// 				microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);
 	// 				microREPL.upyTerminal?.terminal.show();
 	// 			} catch (error) {
 	// 				assert.fail();

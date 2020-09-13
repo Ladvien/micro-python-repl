@@ -143,6 +143,7 @@ export function createMicroREPL(serialDevice: ISerialDevice, logPath: string = "
 		}
 		microREPL.upyTerminal?.terminal.show();
 		microREPL.openSerialConnection();
+		await delay(1000);
 		microREPL.waitForReady().then(async (result) => {
 			if(microREPL !== undefined) {
 				vscode.window.setStatusBarMessage(`Opened MicroREPL on ${microREPL.serialDevice.port} at ${microREPL.serialDevice.baud}`);

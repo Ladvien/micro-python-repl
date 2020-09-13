@@ -1,0 +1,6 @@
+{
+    "test_port":  "/dev/tty.usbserial-0001",
+    "test_baud": 115200,
+    "logPath": "/Users/ladvien/Desktop/mpr_log.txt",
+    "wifiCredsPath": "/Users/ladvien/Desktop/wifi_creds.json"
+}
