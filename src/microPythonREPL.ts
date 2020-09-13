@@ -4,8 +4,8 @@ import { REPLParser } from './replParser';
 import { MicroPythonTerminal } from './microPythonTerminal';
 import { ISerialDevice } from './interfaces/SerialDevice';
 import { SerialConnection } from './serialConnection';
-import * as termCon from './terminalConstants';
 import * as fs from 'fs';
+import { Constants } from './terminalConstants';
 
 const EventEmitter = require('events');
 // https://www.lihaoyi.com/post/BuildyourownCommandLinewithANSIescapecodes.html
@@ -32,18 +32,20 @@ export class MicroPythonREPL {
     
     serialConnectEmitter: typeof EventEmitter;
     upyTerminalEmitter: typeof EventEmitter;
+    constants: Constants;
 
 
 
-    constructor(upyTerminal: MicroPythonTerminal, serialDevice: ISerialDevice, logPath: string = "") {
+    constructor(upyTerminal: MicroPythonTerminal, serialDevice: ISerialDevice, constants: Constants, logPath: string = "") {
         this.serialDevice = serialDevice;
         this.logPath = logPath;
 
         this.upyTerminalEmitter = this.setupMicroPythonTerminalEmitter();
         this.serialConnectEmitter = this.setupSerialConnectionEmitter();
         this.attachTerminal(upyTerminal);
-        this.replParser = new REPLParser();
+        this.replParser = new REPLParser(constants);
         this.serialConnection = new SerialConnection(serialDevice, this.serialConnectEmitter);
+        this.constants = constants;
     }
 
     attachTerminal(upyTerminal: MicroPythonTerminal){
@@ -99,6 +101,7 @@ export class MicroPythonREPL {
             while(i !== lines.length) {
                 const line = lines[i];
                 if(this.isMicroREPLReady()) {
+                    console.log(this.nonAsciiToHex(chunk));
                     await this.writeToDevice(<string>line);
                     this.replReady = false;
                     await delay(this.DELAY_BETWEEN_SEND_TEXT);
@@ -118,11 +121,11 @@ export class MicroPythonREPL {
 
     sendSystemMessage(message: string, clearScreen = false) {
         if(clearScreen) { this.clearScreen(); }
-        this.sendToDisplay(`${termCon.CLEAR_LINE}${termCon.PURPLE}${message}${termCon.RESET_COLOR}\n\r`);
+        this.sendToDisplay(`${this.constants.CLEAR_LINE}${this.constants.PURPLE}${message}${this.constants.RESET_COLOR}\n\r`);
     }
 
     getREPLPrompt() {
-        this.writeToDevice(`${termCon.EXEC}`);
+        this.writeToDevice(`${this.constants.EXEC}`);
     }
     
     getCaptureBuffer() {
@@ -132,8 +135,8 @@ export class MicroPythonREPL {
     }
 
     private clearScreen() {
-        this.sendToDisplay(termCon.CLEAR_ALL);
-        this.sendToDisplay(termCon.RESET_CUR);
+        this.sendToDisplay(this.constants.CLEAR_ALL);
+        this.sendToDisplay(this.constants.RESET_CUR);
     }
 
     private onReadSerialData(data: Buffer) {
@@ -176,7 +179,7 @@ export class MicroPythonREPL {
         for (let i = 0; i < line.length; i++) {
             const char = line[i];
             const rawChar = char.charCodeAt(0);
-            if (rawChar >= 32 && rawChar < 127 || rawChar === 10) {
+            if (rawChar >= 32 && rawChar < 127 ) {
                 parsedString += char;
             } else {
                 let prefix = '0x';
@@ -201,8 +204,8 @@ export class MicroPythonREPL {
 
     private lostConnection(message: string) {
         if(this.upyTerminal){
-            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.RED}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
-            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+            this.upyTerminal.sendToTerminal(`${this.constants.EXEC}${this.constants.RED}${message}${this.constants.RESET_COLOR}${this.constants.EXEC}`);
+            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${this.constants.EXEC}`);
         } else {
             vscode.window.setStatusBarMessage(`${message}`);
         }
@@ -210,17 +213,17 @@ export class MicroPythonREPL {
     
     private onSerialConnectionFailedToOpen(message: String) {
         if(this.upyTerminal){
-            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.RED}Device at path ${this.serialDevice.port} not connected.${termCon.RESET_COLOR}${termCon.EXEC}`);
-            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${termCon.EXEC}`);
+            this.upyTerminal.sendToTerminal(`${this.constants.EXEC}${this.constants.RED}Device at path ${this.serialDevice.port} not connected.${this.constants.RESET_COLOR}${this.constants.EXEC}`);
+            this.upyTerminal.sendToTerminal(`Press space to try and reconnect.${this.constants.EXEC}`);
         } else {
             vscode.window.setStatusBarMessage(`${message}`);
         }
     }
 
     private welcomeMessage() {
-        const message = termCon.WELCOME_MESSAGE;
+        const message = this.constants.WELCOME_MESSAGE;
         if(this.upyTerminal) {
-            this.upyTerminal.sendToTerminal(`${termCon.EXEC}${termCon.PURPLE}${message}${termCon.RESET_COLOR}${termCon.EXEC}`);
+            this.upyTerminal.sendToTerminal(`${this.constants.EXEC}${this.constants.PURPLE}${message}${this.constants.RESET_COLOR}${this.constants.EXEC}`);
         }
     }
 
@@ -242,6 +245,7 @@ export class MicroPythonREPL {
     }
 
     private async gotUserInput(text: String) {
+        console.log(this.nonAsciiToHex(text));
         if(!this.serialConnection.connected && text === ' ') { 
             this.serialConnection.open(); 
             return;

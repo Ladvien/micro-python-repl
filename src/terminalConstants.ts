@@ -1,38 +1,54 @@
-export const DELAY_BETWEEN_EXEC     = 60;        
-export const DELAY_BEFORE_WELCOME   = 1200;
 
-export const TERM_COLUMNS           = 120;
-export const TERM_ROWS              = 20;
 
-export const SPACES_PER_INDENT      = 4;
+export class Constants {
 
-export const PY_CMD_FAILED_MSG      = `MicroPython: failed`;
+    EXEC: string;
+    NEWLINE: string;
+    WELCOME_MESSAGE: string;
 
-export const RAW_REPL_MODE          = `\u0001`;
-export const EXEC_RAW_INPUT         = `\u0004`;
-export const REPL_MODE              = `\u0002`;
-export const PASTE_MODE             = `\u0005`;
+    constructor(){
+        if(process.platform === 'win32'){ this.EXEC = '\r'; }
+        else { this.EXEC =  '\r\n'; }
+        if(process.platform === 'win32'){ this.NEWLINE = '\r'; }
+        else { this.NEWLINE =  '\r\n'; }
+        this.WELCOME_MESSAGE = `Welcome to MicroPython Terminal for VSCode.${this.NEWLINE}Written by C. Thomas Brittain${this.NEWLINE}`;
+    }
+    
 
-export const ESC                    = `\u001b`;
-export const CLEAR_ALL              = `${ESC}[2J`;
-export const CLEAR_LINE             = `${ESC}[2K\r`;
-export const RESET                  = `${ESC}c`;
-export const RESET_CUR              = `${ESC}[0;0H`;
+    DELAY_BETWEEN_EXEC     = 60;        
+    DELAY_BEFORE_WELCOME   = 1200;
+    
+    TERM_COLUMNS           = 120;
+    TERM_ROWS              = 20;
+    
+    SPACES_PER_INDENT      = 4;
+    
+    PY_CMD_FAILED_MSG      = `MicroPython: failed`;
+    
+    RAW_REPL_MODE          = `\u0001`;
+    EXEC_RAW_INPUT         = `\u0004`;
+    REPL_MODE              = `\u0002`;
+    PASTE_MODE             = `\u0005`;
+    
+    ESC                    = `\u001b`;
+    CLEAR_ALL              = `${this.ESC}[2J`;
+    CLEAR_LINE             = `${this.ESC}[2K\r`;
+    RESET                  = `${this.ESC}c`;
+    RESET_CUR              = `${this.ESC}[0;0H`;
+    
+    UP                     = `${this.ESC}\u005b\u0041`;
+    DOWN                   = `${this.ESC}\u005b\u0042`;
+    RIGHT                  = `${this.ESC}\u005b\u0043`;
+    LEFT                   = `${this.ESC}\u005b\u0044`;
+    
+    BACKSPACE              = '\u0008';
+    BACKSPACE_CLEAR        = `${this.BACKSPACE} $this.{BACKSPACE}`;
+    REDUCE_INDENT          = this.BACKSPACE; 
 
-export const UP                     = `${ESC}\u005b\u0041`;
-export const DOWN                   = `${ESC}\u005b\u0042`;
-export const RIGHT                  = `${ESC}\u005b\u0043`;
-export const LEFT                   = `${ESC}\u005b\u0044`;
-
-export const BACKSPACE              = '\u0008';
-export const BACKSPACE_CLEAR        = `${BACKSPACE} ${BACKSPACE}`;
-export const REDUCE_INDENT          = BACKSPACE; 
-export const EXEC                   = '\r\n';
-export const NEWLINE                = '\r\n';
-
-export const RED                    = `${ESC}[31m`;
-export const GREEN                  = `${ESC}[38;5;82m`;
-export const PURPLE                 = `${ESC}[38;5;128m`;
-export const RESET_COLOR            = `${ESC}[39;49m`;
-
-export const WELCOME_MESSAGE        = `Welcome to MicroPython Terminal for VSCode.${NEWLINE}Written by C. Thomas Brittain${NEWLINE}`; 
+    RED                    = `${this.ESC}[31m`;
+    GREEN                  = `${this.ESC}[38;5;82m`;
+    PURPLE                 = `${this.ESC}[38;5;128m`;
+    RESET_COLOR            = `${this.ESC}[39;49m`;
+    
+           
+}

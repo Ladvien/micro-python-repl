@@ -8,9 +8,11 @@ import { SerialDeviceSelector, PORT_PATH_KEY, BAUD_RATE_KEY } from "./serialDevi
 import { delay, selectMicroPythonTerm, showQuickPick, getUserText, typeError } from './util';
 import { setupWifi } from './deviceSystem';
 import { deleteFileOnDev } from './microPythonFS';
+import { Constants } from './terminalConstants';
 
 const logPath = '/home/ladvien/micro-python-terminal/src/test/log.txt';
 let microREPL: MicroPythonREPL | undefined;
+const constants = new Constants();
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -134,7 +136,7 @@ export function createMicroREPL(serialDevice: ISerialDevice, logPath: string = "
 	return new Promise(async (resolve, reject) => {
 		vscode.window.setStatusBarMessage(`Opening MicroPython REPL...$(sync~spin)`);
 		if(microREPL === undefined) {
-			microREPL = new MicroPythonREPL(new MicroPythonTerminal(), serialDevice, logPath);
+			microREPL = new MicroPythonREPL(new MicroPythonTerminal(), serialDevice, constants);
 			await delay(1000);
 		}
 		if(logPath !== '') { microREPL.logPath = logPath; }

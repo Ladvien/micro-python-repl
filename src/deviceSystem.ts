@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { MicroPythonREPL } from './microPythonREPL';
-import * as termCon from './terminalConstants';
 import { delay, showQuickPick, getUserText, typeError } from './util';
 import { ISSID } from './interfaces/SSID';
 import { write, writeFile } from 'fs';
 import { start } from 'repl';
 import { deleteFileOnDev, writeFileOnDev } from './microPythonFS';
+import { Constants } from './terminalConstants';
 
 export async function setupWifi(microREPL: MicroPythonREPL, override: any = undefined) {
 
@@ -14,7 +14,7 @@ export async function setupWifi(microREPL: MicroPythonREPL, override: any = unde
             microREPL.captureOutput = true;
             microREPL.showUser = false;
 
-            let connectionStatus = `${termCon.RED}not connected${termCon.PURPLE}`;
+            let connectionStatus = `${microREPL.constants.RED}not connected${microREPL.constants.PURPLE}`;
             let selectedSSID = '';
             let password = '';
             try {
@@ -41,9 +41,9 @@ export async function setupWifi(microREPL: MicroPythonREPL, override: any = unde
                 await microREPL.reset();
                 await delay(3500);
                 const capture = microREPL.getCaptureBuffer();
-                if(capture.includes(`network: CONNECTED`)) { connectionStatus = `${termCon.GREEN}connected${termCon.PURPLE}`;}
+                if(capture.includes(`network: CONNECTED`)) { connectionStatus = `${microREPL.constants.GREEN}connected${microREPL.constants.PURPLE}`;}
                 microREPL.showUser = true;
-                microREPL.sendSystemMessage(`${termCon.NEWLINE}MicroPython boot.py file created.`);
+                microREPL.sendSystemMessage(`${microREPL.constants.NEWLINE}MicroPython boot.py file created.`);
                 microREPL.sendSystemMessage(`Device will attempt to connect to ${selectedSSID} on startup.`);
                 microREPL.sendSystemMessage(`Device is currently ${connectionStatus}.`);
                 microREPL.getREPLPrompt();

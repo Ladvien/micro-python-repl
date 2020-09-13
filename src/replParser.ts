@@ -1,17 +1,21 @@
 import * as vscode from 'vscode';
 import { delay } from './util';
-import * as termCon from './terminalConstants';
+import { Constants } from './terminalConstants';
 
 export class REPLParser {
 
-    constructor() {}
+    constants: Constants;
+
+    constructor(constants: Constants) {
+        this.constants = constants;
+    }
 
     prepareInputChunk(textChunk: String): Array<String> {
         
         let preparedLines = new Array<String>();
         let lines = textChunk.split('\n');
 
-        lines = lines.map(line => line.replace('\n', ''));
+        lines = lines.map(line => line.replace('\n', '').replace('\r', ''));
         lines = this.removeEmptyLines(lines);
         
         for (let i = 0; i < lines.length; i++) {
@@ -50,15 +54,15 @@ export class REPLParser {
   
         // If indented, check for unindent.
         if (currentIndentLevel > 0 &&  numberIndentsToReduce > 0) {
-            neededBreaks += termCon.EXEC;
+            neededBreaks += this.constants.EXEC;
             for (let i = 0; i < numberIndentsToReduce; i++) {
-                neededBreaks += termCon.REDUCE_INDENT;
+                neededBreaks += this.constants.REDUCE_INDENT;
             }
         }
         if(lines[currentPos + 1] !== undefined && lines[currentPos + 1].includes('except:')) {
             // pass
         } else {
-            neededBreaks += termCon.EXEC;
+            neededBreaks += this.constants.EXEC;
         }
         return neededBreaks;
     }
@@ -74,7 +78,7 @@ export class REPLParser {
 
     countLineIndents(line: string): number {
         const numberOfSpaces = this.getNumberOfSpacesAtStart(line);
-        const numberOfIndents = Math.floor(numberOfSpaces / termCon.SPACES_PER_INDENT);
+        const numberOfIndents = Math.floor(numberOfSpaces / this.constants.SPACES_PER_INDENT);
         return numberOfIndents;
     }
 

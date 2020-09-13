@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-import * as termCon from '../../terminalConstants';
+import * as constants from '../../terminalConstants';
 import { MicroPythonREPL } from './../../microPythonREPL';
 import { createMicroREPL, closeMicroREPL } from '../../extension';
 import { REPLParser } from '../../replParser';
@@ -14,6 +14,7 @@ import { ISerialDevice } from '../../interfaces/SerialDevice';
 import { delay, selectMicroPythonTerm, typeError } from '../../util';
 import { setupWifi, getWifiSSIDInRange } from '../../deviceSystem';
 import { deleteFileOnDev, fileExistsOnDev, writeFileOnDev } from '../../microPythonFS';
+import { Constants } from '../../terminalConstants';
 
 const filePath = `../configs/${process.platform}_test_config.json`;
 const testParamsPath = path.resolve(__dirname, filePath).replace('out', 'src');
@@ -44,7 +45,7 @@ suite('Extension Test Suite', async () => {
 	test('REPLParser.count getNumberOfSpacesAtStart returns correct number of spaces at beginning of the line.', async () => {
 		describe('getNumberOfSpacesAtStart()', function () {
 
-			var tests = [
+			const tests = [
 				{args: '  Hello there my friends.', expected: 2},
 				{args: '   Hello there my enemies.', expected: 3},
 				{args: '    Hello there my enemies.', expected: 4},
@@ -53,8 +54,8 @@ suite('Extension Test Suite', async () => {
 				{args: '  @  !#$@!#$@#%!@#$!@#$.', expected: 2},
 			];
 
-
-			var replParser = new REPLParser();
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
 			tests.forEach(function (test) {
 				it('correctly find the number of spaces at the beginning of "' + test.args + '"', function (){
 					assert.equal(replParser.getNumberOfSpacesAtStart(test.args), test.expected);
@@ -75,7 +76,8 @@ suite('Extension Test Suite', async () => {
 			];
 
 
-			var replParser = new REPLParser();
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
 			tests.forEach(function (test) {
 				it('correctly find the number of Python indents (4 spaces) at the beginning of "' + test.args + '"', function (){
 					assert.equal(replParser.countLineIndents(test.args), test.expected);
@@ -88,13 +90,14 @@ suite('Extension Test Suite', async () => {
 		const fileName = '/single_indent.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 			
-			var replParser = new REPLParser();
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
 			let lines = fs.readFileSync(test_code_folder + fileName, 'utf8').split('\n');
 
 			var tests = [
-				{args: { lines: lines, currentPos:  0}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  1}, expected: termCon.EXEC + termCon.REDUCE_INDENT + termCon.EXEC},
-				{args: { lines: lines, currentPos:  2}, expected: termCon.EXEC},
+				{args: { lines: lines, currentPos:  0}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  1}, expected: constants.EXEC + constants.REDUCE_INDENT + constants.EXEC},
+				{args: { lines: lines, currentPos:  2}, expected: constants.EXEC},
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
@@ -108,18 +111,19 @@ suite('Extension Test Suite', async () => {
 		const fileName = '/two_indents.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 		
-			var replParser = new REPLParser();
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
 			let lines = fs.readFileSync(test_code_folder + fileName, 'utf8').split('\n');
 
 			var tests = [
-				{args: { lines: lines, currentPos:  0}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  1}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  2}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  3}, expected: termCon.EXEC +
-																  termCon.REDUCE_INDENT + 
-																  termCon.REDUCE_INDENT + 
-																  termCon.EXEC},
-				{args: { lines: lines, currentPos:  4}, expected: termCon.EXEC},
+				{args: { lines: lines, currentPos:  0}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  1}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  2}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  3}, expected: constants.EXEC +
+																  constants.REDUCE_INDENT + 
+																  constants.REDUCE_INDENT + 
+																  constants.EXEC},
+				{args: { lines: lines, currentPos:  4}, expected: constants.EXEC},
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
@@ -133,20 +137,21 @@ suite('Extension Test Suite', async () => {
 		const fileName = '/single_indent_then_outdent.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 
-			var replParser = new REPLParser();
-			let lines = fs.readFileSync(test_code_folder + fileName, 'utf8').split('\n');
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
+			const lines = fs.readFileSync(test_code_folder + fileName, 'utf8').split('\n');
 
-			var tests = [
-				{args: { lines: lines, currentPos:  0}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  1}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  2}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  3}, expected: termCon.EXEC +
-																  termCon.REDUCE_INDENT + 
-																  termCon.EXEC },
-				{args: { lines: lines, currentPos:  4}, expected: termCon.EXEC},
-				{args: { lines: lines, currentPos:  5}, expected: termCon.EXEC + 
-																  termCon.REDUCE_INDENT + 
-																  termCon.EXEC },
+			const tests = [
+				{args: { lines: lines, currentPos:  0}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  1}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  2}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  3}, expected: constants.EXEC +
+																  constants.REDUCE_INDENT + 
+																  constants.EXEC },
+				{args: { lines: lines, currentPos:  4}, expected: constants.EXEC},
+				{args: { lines: lines, currentPos:  5}, expected: constants.EXEC + 
+																  constants.REDUCE_INDENT + 
+																  constants.EXEC },
 			];
 			tests.forEach(function (test) {
 				it('correctly finds the signal to send after line "' + test.args.lines[test.args.currentPos] + '"', function (){
@@ -161,7 +166,8 @@ suite('Extension Test Suite', async () => {
 		const fileName = '/empty_lines.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 
-			var replParser = new REPLParser();
+			const constants = new Constants();
+			const replParser = new REPLParser(constants);
 			let chunk = fs.readFileSync(test_code_folder + fileName, 'utf8');
 			
 			let lines = replParser.prepareInputChunk(chunk);
@@ -175,12 +181,12 @@ suite('Extension Test Suite', async () => {
 			// print('goodbye')0xd
 
 			var tests = [
-				{args: { lines: lines, currentPos:  0}, expected: `def hello():${termCon.EXEC}`},
-				{args: { lines: lines, currentPos:  1}, expected: `print('hello')${termCon.EXEC}`},
-				{args: { lines: lines, currentPos:  2}, expected: `print('small talk')${termCon.EXEC}`},
-				{args: { lines: lines, currentPos:  3}, expected: `if True:${termCon.EXEC}`},
-				{args: { lines: lines, currentPos:  4}, expected: `print('more small talk')${termCon.EXEC}${termCon.BACKSPACE}${termCon.BACKSPACE}${termCon.EXEC}`},
-				{args: { lines: lines, currentPos:  5}, expected: `print('goodbye')${termCon.EXEC}`},
+				{args: { lines: lines, currentPos:  0}, expected: `def hello():${constants.EXEC}`},
+				{args: { lines: lines, currentPos:  1}, expected: `print('hello')${constants.EXEC}`},
+				{args: { lines: lines, currentPos:  2}, expected: `print('small talk')${constants.EXEC}`},
+				{args: { lines: lines, currentPos:  3}, expected: `if True:${constants.EXEC}`},
+				{args: { lines: lines, currentPos:  4}, expected: `print('more small talk')${constants.EXEC}${constants.BACKSPACE}${constants.BACKSPACE}${constants.EXEC}`},
+				{args: { lines: lines, currentPos:  5}, expected: `print('goodbye')${constants.EXEC}`},
 			];
 
 			it('correctly excludes empty lines from chunks array', function(){

@@ -10,7 +10,7 @@ async function executeFSCommand(microREPL: MicroPythonREPL, command:string): Pro
         await microREPL.sendSelectedText(command);
         const capture = microREPL.getCaptureBuffer();
         microREPL.getREPLPrompt();
-        if(capture.includes(termCon.PY_CMD_FAILED_MSG)) { throw Error(`Failed to execute file-system command.`); }
+        if(capture.includes(microREPL.constants.PY_CMD_FAILED_MSG)) { throw Error(`Failed to execute file-system command.`); }
         return true;
     } catch (error) {
         throw new Error(FS_CMD_FAIL_MESSAGE);
@@ -33,14 +33,14 @@ export async function deleteFileOnDev(microREPL: MicroPythonREPL, filePath: stri
                             `    import uos\n` +
                             `    uos.remove("${filePath}")\n` +
                             `except:\n` +
-                            `    print('${termCon.PY_CMD_FAILED_MSG}')\n`;
+                            `    print('${microREPL.constants.PY_CMD_FAILED_MSG}')\n`;
 
     try {
         microREPL.captureOutput = true;
         await microREPL.sendSelectedText(fileWriteCmd);
         const capture = microREPL.getCaptureBuffer();
         microREPL.getREPLPrompt();
-        if(capture.includes(termCon.PY_CMD_FAILED_MSG)) { throw Error(`Failed to remove ${filePath}`); }
+        if(capture.includes(microREPL.constants.PY_CMD_FAILED_MSG)) { throw Error(`Failed to remove ${filePath}`); }
     } catch (error) {
         throw new Error(`Failed to remove ${filePath}.`);
     }
@@ -64,7 +64,7 @@ export async function fileExistsOnDev(microREPL: MicroPythonREPL, filePath: stri
                              `    with open ("${filePath}") as f:\n` +
                              `        pass\n` +
                              `except:\n` +
-                             `    print('${termCon.PY_CMD_FAILED_MSG}')\n`;
+                             `    print('${microREPL.constants.PY_CMD_FAILED_MSG}')\n`;
             
     try {
         await executeFSCommand(microREPL, fileExistsCmd);
