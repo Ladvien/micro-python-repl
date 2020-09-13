@@ -398,7 +398,7 @@ suite('Extension Test Suite', async () => {
 					await delay(2500); // Wait for REPL to load.
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					microREPL.clearLog();
-					assert.strictEqual(`>>> `, logLines[logLines.length - 1]);
+					assert.strictEqual(logLines[logLines.length - 1], `>>> `);
 
 					closeMicroREPL(microREPL).then(async () => {
 						assert.strictEqual(microREPL.upyTerminal, undefined);
@@ -430,7 +430,7 @@ suite('Extension Test Suite', async () => {
 					let logLines = fs.readFileSync(test_params["logPath"]).toString().split('\n');
 					let secondToLastLine = logLines[logLines.length - 2];
 					let lastLine = logLines[logLines.length - 1];
-					assert.strictEqual(`50${constants.NEWLINE}`, secondToLastLine);
+					assert.strictEqual(`50${constants.EXEC}`, secondToLastLine);
 					assert.strictEqual(`>>> `, lastLine);
 					microREPL.clearLog();
 
@@ -483,7 +483,7 @@ suite('Extension Test Suite', async () => {
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
 						const testLine = tests[tests.length - i];
-						assert.strictEqual(testLine, logLine);
+						assert.strictEqual(logLine, testLine);
 					}
 					microREPL.clearLog();
 
@@ -529,7 +529,7 @@ suite('Extension Test Suite', async () => {
 					for (let i = 0; i < tests.length - 1; i++) {
 						const logLine = logLines[logLines.length - i];
 						const testLine = tests[tests.length - i];
-						assert.strictEqual(testLine, logLine);
+						assert.strictEqual(logLine, testLine);
 					}
 					microREPL.clearLog();
 
@@ -565,7 +565,7 @@ suite('Extension Test Suite', async () => {
 					const firstExecCode = logLines.find(x => x.includes('>>> '));
 					microREPL.clearLog();
 					await closeMicroREPL(microREPL);
-					assert.strictEqual(firstExecCode, firsLineShouldBe);
+					assert.strictEqual(firsLineShouldBe, firstExecCode);
 				} catch (error) {
 					console.log(error);
 				}

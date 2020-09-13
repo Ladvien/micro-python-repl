@@ -8,9 +8,9 @@ export class Constants {
 
     constructor(){
         if(process.platform === 'win32'){ this.EXEC = '\r'; }
-        else { this.EXEC =  '\r\n'; }
+        else { this.EXEC =  '\r'; }
         if(process.platform === 'win32'){ this.NEWLINE = '\r'; }
-        else { this.NEWLINE =  '\r\n'; }
+        else { this.NEWLINE =  '\r'; }
         this.WELCOME_MESSAGE = `Welcome to MicroPython Terminal for VSCode.${this.NEWLINE}Written by C. Thomas Brittain${this.NEWLINE}`;
     }
     

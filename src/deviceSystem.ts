@@ -121,7 +121,7 @@ export async function writeBoot(microREPL: MicroPythonREPL, ssid: string, passwo
                              `sta_if = network.WLAN(network.STA_IF)\n` +
                              `sta_if.active(True)\n` + 
                              `sta_if.connect('${ssid}', '${password}')\n` +
-                             `sta_if.isconnected()`;
+                             `sta_if.isconnected()\n`;
 
         try {
             writeFileOnDev(microREPL, '/boot.py', wifiOnBoot, true);
