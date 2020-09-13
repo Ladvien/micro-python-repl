@@ -1,11 +1,11 @@
-
 import assert = require('assert');
 import { describe, before, it } from 'mocha';
 import { fail } from 'assert';
 
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import os = require('os');
+import * as path from 'path';
+
 import * as termCon from '../../terminalConstants';
 import { MicroPythonREPL } from './../../microPythonREPL';
 import { createMicroREPL, closeMicroREPL } from '../../extension';
@@ -15,10 +15,12 @@ import { delay, selectMicroPythonTerm, typeError } from '../../util';
 import { setupWifi, getWifiSSIDInRange } from '../../deviceSystem';
 import { deleteFileOnDev, fileExistsOnDev, writeFileOnDev } from '../../microPythonFS';
 
-const filePath = `/../configs/${process.platform}_test_config.json`;
-const test_params = JSON.parse(fs.readFileSync(filePath).toString());
-const wifiCreds = JSON.parse(fs.readFileSync(test_params["wifiCredsPath"]).toString());
-const test_code_folder = './src/test/test_python';
+const filePath = `../configs/${process.platform}_test_config.json`;
+const testParamsPath = path.resolve(__dirname, filePath).replace('out', 'src');
+const testCodePath = path.resolve(__dirname, '../test_python/').replace('out', 'src');
+const test_params = JSON.parse(fs.readFileSync(testParamsPath).toString());
+const wifiCreds = JSON.parse(fs.readFileSync(path.resolve(__dirname, test_params["wifiCredsPath"])).toString());
+const test_code_folder = testCodePath;
 
 suite('Extension Test Suite', async () => {
 
@@ -83,7 +85,7 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('REPLParser.count getNeededBreaksAfter returns the correct signal per line of MicroPython.', async () => {
-		const fileName = 'single_indent.py';
+		const fileName = '/single_indent.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 			
 			var replParser = new REPLParser();
@@ -103,7 +105,7 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('REPLParser.count getNeededBreaksAfter returns the correct signal per line of MicroPython.', async () => {
-		const fileName = 'two_indents.py';
+		const fileName = '/two_indents.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 		
 			var replParser = new REPLParser();
@@ -128,7 +130,7 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('REPLParser.count getNeededBreaksAfter returns the correct signal per line of MicroPython.', async () => {
-		const fileName = 'single_indent_then_outdent.py';
+		const fileName = '/single_indent_then_outdent.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 
 			var replParser = new REPLParser();
@@ -156,7 +158,7 @@ suite('Extension Test Suite', async () => {
 
 
 	test('REPLParser.count getNeededBreaksAfter returns the correct signal per line of MicroPython.', async () => {
-		const fileName = 'empty_lines.py';
+		const fileName = '/empty_lines.py';
 		describe(`getNeededBreaksAfter processes ${fileName}`, function () {
 
 			var replParser = new REPLParser();
@@ -411,7 +413,7 @@ suite('Extension Test Suite', async () => {
 		describe(`sendSelectedText only sends line when REPL is ready.`, () => {
 			// DO NOT REMOVE
 			// https://github.com/mochajs/mocha/issues/2407#issuecomment-467917882
-			const fileName = 'wait_for_ready.py';
+			const fileName = '/wait_for_ready.py';
 			it(`ensures the output from ${fileName} is print('50')0xd`, (done) => {
 				let lines = fs.readFileSync(test_code_folder + fileName, 'utf8');
 
@@ -441,7 +443,7 @@ suite('Extension Test Suite', async () => {
 
 
 	test('REPLParser handles try-except blocks', () => {
-		const fileName = 'try_except.py';
+		const fileName = '/try_except.py';
 		describe(`REPLParser processes ${fileName}`, () => {
 			it(`try-except block is executed correctly`, (done) => {
 				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
@@ -493,7 +495,7 @@ suite('Extension Test Suite', async () => {
 	});
 
 	test('REPLParser handles deep-try-except blocks', () => {
-		const fileName = 'deep_try_except.py';
+		const fileName = '/deep_try_except.py';
 		describe(`REPLParser processes ${fileName}`, () => {
 			it(`complicated try-except block is executed correctly`, (done) => {
 				createMicroREPL(serialDevice, test_params["logPath"]).then(async (microREPL) => {
@@ -545,7 +547,7 @@ suite('Extension Test Suite', async () => {
 
 			it(`First line is ${firsLineShouldBe}`, async () => {
 
-				const fileName = 'wait_for_ready.py';
+				const fileName = '/wait_for_ready.py';
 				let microREPL: MicroPythonREPL;
 				try {
 					microREPL = await createMicroREPL(serialDevice, test_params["logPath"]);

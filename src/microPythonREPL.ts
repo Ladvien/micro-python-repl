@@ -137,7 +137,6 @@ export class MicroPythonREPL {
     }
 
     private onReadSerialData(data: Buffer) {
-        console.log(this.nonAsciiToHex(data.toString()));
         const line = data.toString('utf8');
         if(this.logPath !== ''){ this.log(line); }
         this.rxBuffer += line;

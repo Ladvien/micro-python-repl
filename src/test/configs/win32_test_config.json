@@ -1,0 +1,6 @@
+{
+    "test_port":  "COM8",
+    "test_baud": 115200,
+    "logPath": "C:/Users/cthom/Desktop/mpr_log.lo",
+    "wifiCredsPath": "C:/Users/cthom/Desktop/wifi_creds.json"
+}
