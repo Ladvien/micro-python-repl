@@ -9,3 +9,7 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 *.visx
+node_modules/**
+prettier.config.json
+webpack.config.js
+tslint.json

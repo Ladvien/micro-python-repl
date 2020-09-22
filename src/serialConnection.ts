@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { ISerialDevice } from './interfaces/SerialDevice';
-import SerialPort = require('serialport');
+const SerialPort = require('node-usb-native').SerialPort;
 import { delay } from './util';
 
 const EventEmitter = require('events');
@@ -8,7 +8,7 @@ const encoding = 'utf8'; // https://www.w3resource.com/node.js/nodejs-buffer.php
 
 export class SerialConnection {
 
-	port: SerialPort;
+	port: typeof SerialPort;
 	serialDevice: ISerialDevice;
 	eventEmitter: typeof EventEmitter;
 	connected: boolean;
@@ -26,10 +26,10 @@ export class SerialConnection {
 		} catch (error) {
 			this.port = new SerialPort(this.serialDevice.port);
 		}
-		this.port.on('data', (data) => this.onRead(data));
+		this.port.on('data', (data: Buffer) => this.onRead(data));
 		this.port.on('disconnect', () => this.onDisconnect());
 		this.port.on('close', () => this.onClose());
-		this.port.on('error', (err) => this.onError(err));
+		this.port.on('error', (err: Error) => this.onError(err));
 	}
 
 	open() {
@@ -50,7 +50,7 @@ export class SerialConnection {
 
 	write(line: string) {
 		if(!this.connected) { return; }
-		this.port.write(line, (err) => {
+		this.port.write(line, (err: { message: any; }) => {
 			if (err) {
 				vscode.window.showErrorMessage(`Error writing to device.`, err.message);
 			}
@@ -70,7 +70,7 @@ export class SerialConnection {
 	close(): Promise<string> {
 		return new Promise((resolve, reject) => {
 			if(!this.port.isOpen) { resolve(this.port.path); }
-			this.port.close((err) => {
+			this.port.close((err: any) => {
 				if(!err) {
 					resolve(this.port.path);
 				}
@@ -95,11 +95,11 @@ export class SerialConnection {
 
 	isDeviceConnected(): Promise<boolean> {
 		return new Promise((resolve, reject) => {
-			SerialPort.list().then((ports) => {
-				let found = ports.some(port => port.path === this.serialDevice.port);
+			SerialPort.list().then((ports: any[]) => {
+				let found = ports.some((port: { path: string; }) => port.path === this.serialDevice.port);
 				console.log(found);
 				resolve(found);
-			}).catch((err) => {
+			}).catch((err: any) => {
 				reject(false);
 			}); 
 		});

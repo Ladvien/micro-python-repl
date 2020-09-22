@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { ISerialDevice } from './interfaces/SerialDevice';
 import { showQuickPick } from './util';
-import SerialPort = require('serialport');
+const SerialPort = require('node-usb-native').SerialPort;
 
 export const PORT_PATH_KEY = "port";
 export const BAUD_RATE_KEY = "baud";
@@ -24,7 +24,7 @@ export class SerialDeviceSelector {
     readAvailablePorts()  {
 		return new Promise<string[]>((resolve, reject) => {
 			var paths = new Array<string>();
-			SerialPort.list().then((ports: SerialPort.PortInfo[]) => {
+			SerialPort.list().then((ports: any[]) => {
 				ports.forEach(port => {
 					paths.push(port.path);
 				});

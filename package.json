@@ -2,7 +2,7 @@
   "name": "micro-python-repl",
   "displayName": "MicroPython REPL",
   "description": "A terminal and tools for rapid MicroPython development.",
-  "version": "0.0.3",
+  "version": "0.0.31",
   "engines": {
     "vscode": "^1.47.0"
   },
@@ -16,7 +16,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onLanguage:python"
+    "*"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -44,13 +44,14 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "lint": "eslint src --ext ts",
+    "vscode:prepublish": "npm run compile && webpack --mode production",
+    "compile": "tsc -p .",
     "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "test": "node ./out/test/runTest.js",
-    "install": "electron-rebuild"
+    "postinstall": "node ./node_modules/node-usb-native/scripts/rebuild-serialport.js",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check"
   },
   "devDependencies": {
     "@types/assert": "^1.5.2",
@@ -61,20 +62,27 @@
     "@types/vscode": "^1.47.0",
     "@typescript-eslint/eslint-plugin": "^2.30.0",
     "@typescript-eslint/parser": "^2.30.0",
-    "electron-rebuild": "^1.11.0",
     "eslint": "^6.8.0",
+    "fs-plus": "^3.1.1",
     "glob": "^7.1.6",
     "mocha": "^7.2.0",
+    "ts-loader": "^8.0.4",
     "typescript": "^3.8.3",
+    "vsce": "^1.79.5",
     "vscode-test": "^1.3.0",
-    "webpack": "^4.44.1",
+    "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
-    "electron": "^9.0.1"
+    "gts": "^2.0.2",
+    "gulp": "^4.0.2",
+    "node-gyp": "^6.1.0",
+    "tslint": "^5.20.0"
   },
   "dependencies": {
+    "adm-zip": "^0.4.13",
     "g": "^2.0.1",
+    "node-usb-native": "^0.0.15",
     "save": "^2.4.0",
-    "serialport": "^9.0.1",
-    "vsce": "^1.79.5"
+    "impor": "^0.1.1",
+    "electron-rebuild": "^1.11.0"
   }
 }
