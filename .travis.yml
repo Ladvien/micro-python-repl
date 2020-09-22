@@ -37,7 +37,6 @@ install:
 
 script:
 - tsc --version
-- npm run check
 - node scripts/modifyConfigIfRCVersion.js
 - vsce package
 
