@@ -79,10 +79,10 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.13",
+    "electron-rebuild": "^1.11.0",
     "g": "^2.0.1",
-    "node-usb-native": "^0.0.15",
-    "save": "^2.4.0",
     "impor": "^0.1.1",
-    "electron-rebuild": "^1.11.0"
+    "node-usb-native": "^0.0.15",
+    "save": "^2.4.0"
   }
 }
