@@ -38,6 +38,7 @@ install:
 script:
 - tsc --version
 - node scripts/modifyConfigIfRCVersion.js
+- pwd
 - vsce package
 
 deploy:
