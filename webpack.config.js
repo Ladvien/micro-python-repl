@@ -25,7 +25,7 @@ function getEntry() {
   for (const mod of moduleList) {
     entry[mod] = './node_modules/' + mod;
   }
-
+  console.log(entry);
   return entry;
 }
 
