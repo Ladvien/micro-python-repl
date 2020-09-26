@@ -5,13 +5,12 @@ if (process.env.TRAVIS_TAG) {
   if (isTestVersion) {
     const packageJson = JSON.parse(fs.readFileSync('package.json'));
 
-    const testName = "test-albatross";
-    const testDisplayName = "Test Albatross RC";
-    const testPublisher = "IoTDevExBuild";
+    const testName = "test-micro-python-repl";
+    const testDisplayName = "Test MicroPythonREPL";
+    const testPublisher = "ladvien";
     packageJson.name = testName;
     packageJson.displayName = testDisplayName;
     packageJson.publisher = testPublisher;
-    packageJson.aiKey = process.env['TEST_AIKEY'];
 
     const indexOfDash = packageJson.version.indexOf('-');
     if (indexOfDash > 0) {
