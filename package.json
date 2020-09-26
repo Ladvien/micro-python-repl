@@ -47,7 +47,7 @@
     "vscode:prepublish": "npm run compile && webpack --mode production",
     "compile": "tsc -p .",
     "watch": "tsc -watch -p ./",
-    "postinstall": "ls && node ./node_modules/node-usb-native/scripts/rebuild-serialport.js",
+    "postinstall": "ls node_modules/@serialport/ && node ./node_modules/node-usb-native/scripts/rebuild-serialport.js",
     "test": "npm run compile && node ./node_modules/vscode/bin/test",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
