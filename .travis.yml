@@ -40,7 +40,6 @@ script:
 - sed -i 's/7.1.11/$ELECTRON_VER/g' ./node_modules/node-usb-native/.travis.yml
 - sed -i 's/7.1.11/$ELECTRON_VER/g' ./node_modules/node-usb-native/scripts/rebuild-serialport.js
 - node scripts/modifyConfigIfRCVersion.js
-- ls ./node_modules
 - vsce package
 
 deploy:
