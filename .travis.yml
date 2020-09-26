@@ -39,8 +39,6 @@ script:
 - tsc --version
 - node scripts/modifyConfigIfRCVersion.js
 - pwd
-- ls -la
-- ls node_modules/
 - vsce package
 
 deploy:
