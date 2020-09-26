@@ -4,7 +4,7 @@
   "description": "A terminal and tools for rapid MicroPython development.",
   "version": "0.0.31",
   "engines": {
-    "vscode": "^1.43.0"
+    "vscode": "^1.47.0"
   },
   "icon": "vscode-micro-python-icon.png",
   "repository": {
